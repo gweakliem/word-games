@@ -14,7 +14,7 @@ plugins {
 ext {
   deps = [
       ktor      : '0.9.1',
-      kotlin    : '1.2.31',
+      kotlin    : '1.2.40',
       // also see version in buildscript
       postgresql: '42.2.2',
       jackson   : '2.9.5',
