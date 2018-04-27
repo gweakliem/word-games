@@ -4,8 +4,8 @@ services:
   postgresql:
     image: postgres:9.6
     environment:
-      POSTGRES_USER: 'local-dev'
-      POSTGRES_PASSWORD: 'local-dev'
+      POSTGRES_USER: 'ktor-demo-dev'
+      POSTGRES_PASSWORD: 'ktor-demo-dev'
       POSTGRES_DB: 'ktor-demo'
     ports:
       - '127.0.0.1:25432:5432'

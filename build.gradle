@@ -21,8 +21,8 @@ ext {
       slf4j     : '1.7.25'
   ]
 
-  dbUser = 'local-dev'
-  dbPass = 'local-dev'
+  dbUser = 'ktor-demo-dev'
+  dbPass = 'ktor-demo-dev'
   jdbcUrl = 'jdbc:postgresql://localhost:25432/ktor-demo'
 }
 

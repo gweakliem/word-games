@@ -14,11 +14,11 @@ public interface KtorDemoConfig {
     int dbPort();
 
     @Config("KTOR_DEMO_DB_USER")
-    @Default("local-dev")
+    @Default("ktor-demo-dev")
     String dbUser();
 
     @Config("KTOR_DEMO_DB_PASSWORD")
-    @Default("local-dev")
+    @Default("ktor-demo-dev")
     String dbPassword();
 
     @Config("KTOR_DEMO_HTTP_PORT")
