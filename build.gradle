@@ -13,7 +13,7 @@ plugins {
 
 ext {
   deps = [
-      ktor      : '0.9.1',
+      ktor      : '0.9.2',
       kotlin    : '1.2.40',
       // also see version in buildscript
       postgresql: '42.2.2',
@@ -23,6 +23,7 @@ ext {
 
   dbUser = 'local-dev'
   dbPass = 'local-dev'
+  jdbcUrl = 'jdbc:postgresql://localhost:25432/ktor-demo'
 }
 
 mainClassName = 'KtorDemoKt'
@@ -62,7 +63,7 @@ configurations.all {
 }
 
 flyway {
-  url = 'jdbc:postgresql://localhost:5432/ktor-demo'
+  url = jdbcUrl
   user = dbUser
   password = dbPass
 }
@@ -74,7 +75,7 @@ jooq {
   ktorDemo(sourceSets.main) {
     jdbc {
       driver = 'org.postgresql.Driver'
-      url = 'jdbc:postgresql://localhost:5432/ktor-demo'
+      url = jdbcUrl
       user = dbUser
       password = dbPass
     }

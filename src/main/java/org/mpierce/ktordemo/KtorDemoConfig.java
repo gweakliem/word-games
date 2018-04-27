@@ -10,7 +10,7 @@ public interface KtorDemoConfig {
     String dbIp();
 
     @Config("KTOR_DEMO_DB_PORT")
-    @Default("5432")
+    @Default("25432")
     int dbPort();
 
     @Config("KTOR_DEMO_DB_USER")
@@ -20,4 +20,8 @@ public interface KtorDemoConfig {
     @Config("KTOR_DEMO_DB_PASSWORD")
     @Default("local-dev")
     String dbPassword();
+
+    @Config("KTOR_DEMO_HTTP_PORT")
+    @Default("9080")
+    int httpPort();
 }

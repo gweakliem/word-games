@@ -48,7 +48,7 @@ fun main(args: Array<String>) {
     // in the endpoint closures below, but also passed to Guice to be used in endpoint classes
     val jooq = DSL.using(HikariDataSource(hikariConfig), SQLDialect.POSTGRES)
 
-    val server = embeddedServer(Netty, port = 8080) {
+    val server = embeddedServer(Netty, port = config.httpPort()) {
         setupGuice(jooq)
         install(ContentNegotiation) {
             jackson {

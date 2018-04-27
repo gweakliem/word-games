@@ -25,19 +25,19 @@ I make no claim of using any particular feature in the most idiomatic way. If yo
 Create a widget using [httpie](https://httpie.org/) or your HTTP client of choice:
 
 ```
-http POST 127.0.0.1:8080/widgets name=foo
+http POST 127.0.0.1:9080/widgets name=foo
 ```
 
 List all the widgets widgets:
 
 ```
-http GET 127.0.0.1:8080/widgets/all
+http GET 127.0.0.1:9080/widgets/all
 ```
 
 Get a single widget:
 
 ```
-http GET 127.0.0.1:8080/widgets/id/1
+http GET 127.0.0.1:9080/widgets/id/1
 ```
 
 # Local dev 

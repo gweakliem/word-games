@@ -9,7 +9,7 @@ RUN apt-get update && apt-get -y install \
     zulu-10
 
 CMD ["sh", "/deploy/ktor-demo/bin/ktor-demo"]
-EXPOSE 8080
+EXPOSE 9080
 
 RUN mkdir /deploy
 ADD build/distributions/ktor-demo.tar /deploy
