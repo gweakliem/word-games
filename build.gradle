@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-  compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$deps.kotlin"
+  compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
   compile "io.ktor:ktor-server-core:$deps.ktor"
   compile "io.ktor:ktor-server-netty:$deps.ktor"
   compile "io.ktor:ktor-jackson:$deps.ktor"
