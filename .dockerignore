@@ -1,2 +1,2 @@
 *
-!build/distributions/ktor-demo.tar
+!build/distributions/*.tar
