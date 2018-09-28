@@ -44,7 +44,7 @@ http GET 127.0.0.1:9080/widgets/id/1
 
 Local dev setup steps:
 
-- Install Java 9+ (or disable the module command line flags and use Java 8)
+- Install Java
 - Start a db container: `docker-compose up -d`
 - Do a build: `./gradlew build`
     - This does a DB migration, which you can do yourself too: `./gradlew flywayMigrate`

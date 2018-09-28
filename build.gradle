@@ -1,23 +1,32 @@
 buildscript {
   dependencies {
     classpath "org.postgresql:postgresql:42.2.5"
+    // used by jooq gradle plugin to write config
+    classpath "com.sun.xml.bind:jaxb-impl:2.3.0.1"
+    classpath "com.sun.xml.bind:jaxb-core:2.3.0.1"
+    classpath "com.sun.activation:javax.activation:1.2.0"
   }
 }
 
 plugins {
-  id "org.jetbrains.kotlin.jvm" version "1.2.70"
+  id "org.jetbrains.kotlin.jvm" version "1.2.71"
   id 'application'
-  id "org.flywaydb.flyway" version "5.0.7"
+  id "org.flywaydb.flyway" version "5.1.4"
   id "nu.studer.jooq" version "3.0.2"
+  id "com.github.ben-manes.versions" version "0.20.0"
 }
 
 ext {
   deps = [
-      ktor      : '0.9.4',
+      ktor      : '0.9.5',
       // also see version in buildscript
       postgresql: '42.2.5',
-      jackson   : '2.9.6',
-      slf4j     : '1.7.25'
+      jackson   : '2.9.7',
+      slf4j     : '1.7.25',
+      // also see versions in buildscript
+      jaxb      : '2.3.0.1',
+      jaxbApi   : '2.3.0',
+      activation: '1.2.0'
   ]
 
   dbUser = 'ktor-demo-dev'
@@ -45,15 +54,19 @@ dependencies {
   runtime "ch.qos.logback:logback-classic:1.2.3"
   runtime "org.slf4j:jcl-over-slf4j:$deps.slf4j"
 
-  compile 'com.google.inject:guice:4.2.0'
+  compile 'com.google.inject:guice:4.2.1'
 
   compile 'org.skife.config:config-magic:0.17'
-  compile 'commons-configuration:commons-configuration:1.8'
+  compile 'commons-configuration:commons-configuration:1.10'
 
-  compile 'com.zaxxer:HikariCP:3.1.0'
+  compile 'com.zaxxer:HikariCP:3.2.0'
   compile 'org.jooq:jooq'
   runtime "org.postgresql:postgresql:$deps.postgresql"
   jooqRuntime "org.postgresql:postgresql:$deps.postgresql"
+  jooqRuntime "com.sun.xml.bind:jaxb-impl:$deps.jaxb"
+  jooqRuntime "com.sun.xml.bind:jaxb-core:$deps.jaxb"
+  jooqRuntime "javax.xml.bind:jaxb-api:$deps.jaxbApi"
+  jooqRuntime "com.sun.activation:javax.activation:$deps.activation"
 }
 
 configurations.all {
