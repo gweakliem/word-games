@@ -109,13 +109,6 @@ jooq {
 compileKotlin.dependsOn(generateKtorDemoJooqSchemaSource)
 generateKtorDemoJooqSchemaSource.dependsOn(flywayMigrate)
 
-tasks.generateKtorDemoJooqSchemaSource.with {
-  javaExecSpec = { JavaExecSpec s ->
-    // for some reason we also need to enable this here
-    s.jvmArgs '--add-modules', 'java.xml.bind'
-  }
-}
-
 compileKotlin {
   kotlinOptions {
     jvmTarget = "1.8"
