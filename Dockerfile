@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:18.10
 
 RUN apt-get update && apt-get install -y software-properties-common
 
@@ -6,7 +6,7 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x219BD9C9
     && apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main'
 
 RUN apt-get update && apt-get -y install \
-    zulu-10
+    zulu-11
 
 CMD ["sh", "/deploy/ktor-demo/bin/ktor-demo"]
 EXPOSE 9080
