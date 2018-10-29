@@ -1,3 +1,5 @@
+package org.mpierce.ktordemo
+
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -20,13 +22,12 @@ import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import org.apache.commons.configuration.EnvironmentConfiguration
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
-import org.mpierce.ktordemo.GetWidgetEndpoint
-import org.mpierce.ktordemo.KtorDemoConfig
 import org.mpierce.ktordemo.jooq.Tables.WIDGETS
 import org.mpierce.ktordemo.jooq.tables.records.WidgetsRecord
 import org.skife.config.CommonsConfigSource
@@ -64,9 +65,9 @@ fun main(args: Array<String>) {
         }
         routing {
             get("/widgets/all") {
-                val widgets = async {
+                val widgets = async(Dispatchers.IO) {
                     jooq.fetch(WIDGETS)
-                            .map({ WidgetResponse.fromRecord(it) })
+                            .map { r -> WidgetResponse(r) }
                             .toList()
                 }
                 call.respond(widgets.await())
@@ -74,7 +75,7 @@ fun main(args: Array<String>) {
             post("/widgets") {
                 val req = call.receive<WidgetPost>()
 
-                val result = async {
+                val result = async(Dispatchers.IO) {
                     jooq.insertInto(WIDGETS, WIDGETS.NAME)
                             .values(req.name)
                             .returning(WIDGETS.ID, WIDGETS.CREATED_AT)
@@ -120,14 +121,5 @@ data class WidgetPost(@JsonProperty("name") val name: String)
 data class WidgetResponse(@JsonProperty("id") val id: Int,
                           @JsonProperty("name") val name: String,
                           @JsonProperty("createdAt") val createdAt: Instant) {
-    companion object {
-        /**
-         * Build a response from a jooq Record.
-         */
-        fun fromRecord(r: WidgetsRecord): WidgetResponse = WidgetResponse(
-                r.id,
-                r.name,
-                r.createdAt.toInstant()
-        )
-    }
+    constructor(r: WidgetsRecord) : this(r.id, r.name, r.createdAt.toInstant())
 }
