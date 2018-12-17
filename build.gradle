@@ -21,7 +21,7 @@ ext {
       ktor      : '1.0.1',
       // also see version in buildscript
       postgresql: '42.2.5',
-      jackson   : '2.9.7',
+      jackson   : '2.9.8',
       slf4j     : '1.7.25',
       // also see versions in buildscript
       jaxb      : '2.3.0.1',
