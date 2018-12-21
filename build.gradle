@@ -80,7 +80,7 @@ flyway {
 }
 
 jooq {
-  version = '3.11.7'
+  version = '3.11.8'
   edition = 'OSS'
 
   ktorDemo(sourceSets.main) {
