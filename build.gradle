@@ -31,7 +31,7 @@ ext {
 
   dbUser = 'ktor-demo-dev'
   dbPass = 'ktor-demo-dev'
-  jdbcUrl = 'jdbc:postgresql://localhost:25432/ktor-demo'
+  jdbcUrl = 'jdbc:postgresql://localhost:25432/ktor-demo-dev'
 }
 
 mainClassName = 'org.mpierce.ktordemo.KtorDemoKt'

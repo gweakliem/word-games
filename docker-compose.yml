@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: 'ktor-demo-dev'
       POSTGRES_PASSWORD: 'ktor-demo-dev'
-      POSTGRES_DB: 'ktor-demo'
+      POSTGRES_DB: 'ktor-demo-dev'
     ports:
       - '127.0.0.1:25432:5432'
     networks:
