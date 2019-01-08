@@ -21,8 +21,13 @@ import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.skife.config.CommonsConfigSource
 import org.skife.config.ConfigurationObjectFactory
+import org.slf4j.bridge.SLF4JBridgeHandler
 
 fun main(args: Array<String>) {
+    // Use SLF4J for JUL
+    SLF4JBridgeHandler.removeHandlersForRootLogger()
+    SLF4JBridgeHandler.install()
+
     val config = ConfigurationObjectFactory(CommonsConfigSource(EnvironmentConfiguration()))
             .build(KtorDemoConfig::class.java)
 
