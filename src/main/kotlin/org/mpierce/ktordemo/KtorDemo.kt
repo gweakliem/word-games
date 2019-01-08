@@ -42,7 +42,7 @@ fun main(args: Array<String>) {
     val jooq = DSL.using(HikariDataSource(hikariConfig), SQLDialect.POSTGRES)
 
     val server = embeddedServer(Netty, port = config.httpPort()) {
-        setupGuice(jooq)
+        setupGuice(this, jooq)
         install(ContentNegotiation) {
             jackson {
                 // Write dates in ISO8601
@@ -59,7 +59,7 @@ fun main(args: Array<String>) {
     server.start(wait = true)
 }
 
-fun Application.setupGuice(jooq: DSLContext) {
+fun setupGuice(app: Application, jooq: DSLContext) {
     // We don't actually need the injector itself; the necessary linkage happens in the
     // ctor for endpoints. More complex usages may wish to hang on to the injector to
     // create child injectors, etc. See https://ktor.io/samples/guice.html.
@@ -68,7 +68,7 @@ fun Application.setupGuice(jooq: DSLContext) {
                 override fun configure() {
                     bind(DSLContext::class.java).toInstance(jooq)
 
-                    bind(Application::class.java).toInstance(this@setupGuice)
+                    bind(Application::class.java).toInstance(app)
 
                     // endpoints get bound eagerly so routes are set up
                     listOf(WidgetEndpoints::class.java)
