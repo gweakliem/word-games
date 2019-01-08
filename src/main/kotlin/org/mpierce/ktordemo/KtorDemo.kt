@@ -23,12 +23,11 @@ import org.skife.config.CommonsConfigSource
 import org.skife.config.ConfigurationObjectFactory
 
 fun main(args: Array<String>) {
-    // If you need config types available via Guice, see the config-inject library
     val config = ConfigurationObjectFactory(CommonsConfigSource(EnvironmentConfiguration()))
             .build(KtorDemoConfig::class.java)
 
     val hikariConfig = HikariConfig().apply {
-        jdbcUrl = "jdbc:postgresql://${config.dbIp()}:${config.dbPort()}/ktor-demo"
+        jdbcUrl = "jdbc:postgresql://${config.dbIp()}:${config.dbPort()}/ktor-demo-dev"
         username = config.dbUser()
         password = config.dbPassword()
     }
