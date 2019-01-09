@@ -1,6 +1,6 @@
 # What is this?
 
-It's a small demo of using Ktor together with some other libraries to perform the sort of real world tasks common services perform: JSON serialization, working with a database, etc. Feel free to use this project as a starting point; that's the idea!
+It's a small demo of using Ktor together with some other libraries to perform the sort of real world tasks common services perform: JSON serialization, working with a database, testing, etc. Feel free to use this project as a starting point; that's the idea! Nothing here is the "only way of doing things", so ditch anything that isn't a good fit for your project.
 
 Its contrived, simplistic workload is to let you create "widgets" and then list them or request individual widgets.
 
@@ -59,7 +59,7 @@ Some things to note about the tests:
 
 - Tests should run quickly. To help achieve that, database access is done via a `WidgetDao` interface which has 2 implementations: one that uses PostgreSQL, and another that's in-memory. The former is used only when it's the actual system under test, and the much cheaper in-memory one is used everywhere else. See `WedgetDaoTest.kt`.
 - A separate database for tests is created in the postgresql container so that test data is isolated from any data you might have created when running the actual service. See `build.gradle`.
-- 
+- See `WidgetEndpointTests` for how to test an endpoint. (Uses the aforementioned in-memory persistence implementation)
 
 # Packaging into a Docker image
 

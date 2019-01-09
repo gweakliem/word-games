@@ -11,6 +11,9 @@ import java.time.Instant
  */
 interface WidgetDao {
     fun getWidget(id: Int): Widget?
+    /**
+     * @return All widgets in creation order (newest last).
+     */
     fun getAllWidgets(): List<Widget>
     fun createWidget(name: String): Widget
 }

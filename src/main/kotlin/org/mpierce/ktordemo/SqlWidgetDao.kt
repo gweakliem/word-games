@@ -13,7 +13,9 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
     }
 
     override fun getAllWidgets(): List<Widget> {
-        return txnContext.fetch(WIDGETS)
+        return txnContext.selectFrom(WIDGETS)
+                .orderBy(WIDGETS.ID.asc())
+                .fetch()
                 .map { r -> Widget(r) }
                 .toList()
     }
@@ -26,4 +28,8 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
 
         return Widget(result)
     }
+}
+
+class SqlDaoFactory : DaoFactory {
+    override fun widgetDao(txnContext: DSLContext): WidgetDao = SqlWidgetDao(txnContext)
 }

@@ -1,9 +1,6 @@
 package org.mpierce.ktordemo
 
 import org.jooq.DSLContext
-import org.jooq.impl.DSL
-import org.jooq.tools.jdbc.MockConnection
-import org.jooq.tools.jdbc.MockDataProvider
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -11,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 abstract class WidgetDaoTestBase {
-
     abstract fun daoFactory(): DaoFactory
 
     abstract fun dslContext(): DSLContext
@@ -50,11 +46,7 @@ abstract class WidgetDaoTestBase {
 class MemoryWidgetDaoTest : WidgetDaoTestBase() {
     private val factory = MemoryDaoFactory()
     override fun daoFactory() = factory
-
-    override fun dslContext(): DSLContext {
-        // fake dsl -- memory dao impls don't ever actually use a db connection
-        return DSL.using(MockConnection(MockDataProvider { TODO("should never be called") }))
-    }
+    override fun dslContext(): DSLContext = fakeJooqDsl()
 }
 
 class SqlWidgetDaoTest : WidgetDaoTestBase() {

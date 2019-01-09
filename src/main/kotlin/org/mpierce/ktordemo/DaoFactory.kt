@@ -1,5 +1,6 @@
 package org.mpierce.ktordemo
 
+import com.google.inject.AbstractModule
 import org.jooq.DSLContext
 
 /**
@@ -10,6 +11,8 @@ interface DaoFactory {
     fun widgetDao(txnContext: DSLContext): WidgetDao
 }
 
-class SqlDaoFactory: DaoFactory {
-    override fun widgetDao(txnContext: DSLContext): WidgetDao = SqlWidgetDao(txnContext)
+class DaoFactoryModule(private val daoFactory: DaoFactory) : AbstractModule() {
+    override fun configure() {
+        bind(DaoFactory::class.java).toInstance(daoFactory)
+    }
 }
