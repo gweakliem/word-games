@@ -9,6 +9,7 @@
   </appender>
 
   <logger name="org.skife.config" level="warn"/>
+  <logger name="org.jooq.Constants" level="warn"/>
 
   <root level="info">
     <appender-ref ref="STDOUT"/>

@@ -31,15 +31,19 @@ fun main(args: Array<String>) {
     val config = ConfigurationObjectFactory(CommonsConfigSource(EnvironmentConfiguration()))
             .build(KtorDemoConfig::class.java)
 
-    val hikariConfig = HikariConfig().apply {
-        jdbcUrl = "jdbc:postgresql://${config.dbIp()}:${config.dbPort()}/ktor-demo-dev"
-        username = config.dbUser()
-        password = config.dbPassword()
-    }
-
     // For demonstration's sake, we'll let the jooq context be a local var to be used
     // in the endpoint closures below, but also passed to Guice to be used in endpoint classes
-    val jooq = DSL.using(HikariDataSource(hikariConfig), SQLDialect.POSTGRES)
+    val jooq = DSL.using(
+            buildDataSource(
+                    config.dbIp(),
+                    config.dbPort(),
+                    "ktor-demo-dev",
+                    config.dbUser(),
+                    config.dbPassword(),
+                    4,
+                    1
+            ),
+            SQLDialect.POSTGRES)
 
     val server = embeddedServer(Netty, port = config.httpPort()) {
         setupGuice(this, jooq)
@@ -67,6 +71,7 @@ fun setupGuice(app: Application, jooq: DSLContext) {
             object : AbstractModule() {
                 override fun configure() {
                     bind(DSLContext::class.java).toInstance(jooq)
+                    bind(DaoFactory::class.java).to(SqlDaoFactory::class.java)
 
                     bind(Application::class.java).toInstance(app)
 
@@ -82,3 +87,18 @@ fun setupGuice(app: Application, jooq: DSLContext) {
             })
 }
 
+fun buildDataSource(ip: String, port: Int, dbName: String, user: String, pass: String,
+                    connPoolMaxSize: Int, connPoolMinIdle: Int): HikariDataSource {
+    val config = HikariConfig().apply {
+        jdbcUrl = "jdbc:postgresql://$ip:$port/$dbName"
+        username = user
+        password = pass
+        isAutoCommit = false
+        maximumPoolSize = connPoolMaxSize
+        minimumIdle = connPoolMinIdle
+        // per jdbc spec, driver uses tz from the host JVM. For local dev, this is lame, so we just always set UTC.
+        // This means that casting a timestamp to a date (for grouping, for instance) will use UTC.
+        connectionInitSql = "SET TIME ZONE 'UTC'"
+    }
+    return HikariDataSource(config)
+}

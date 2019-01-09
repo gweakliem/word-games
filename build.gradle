@@ -1,3 +1,6 @@
+import org.flywaydb.gradle.task.FlywayCleanTask
+import org.flywaydb.gradle.task.FlywayMigrateTask
+
 buildscript {
   dependencies {
     classpath "org.postgresql:postgresql:42.2.5"
@@ -31,7 +34,11 @@ ext {
 
   dbUser = 'ktor-demo-dev'
   dbPass = 'ktor-demo-dev'
+  testDbUser = 'ktor-demo-test'
+  testDbPass = 'ktor-demo-test'
+  testDbName = 'ktor-demo-test'
   jdbcUrl = 'jdbc:postgresql://localhost:25432/ktor-demo-dev'
+  testJdbcUrl = "jdbc:postgresql://localhost:25432/${testDbName}"
 }
 
 mainClassName = 'org.mpierce.ktordemo.KtorDemoKt'
@@ -67,6 +74,14 @@ dependencies {
   jooqRuntime "com.sun.xml.bind:jaxb-core:$deps.jaxb"
   jooqRuntime "javax.xml.bind:jaxb-api:$deps.jaxbApi"
   jooqRuntime "com.sun.activation:javax.activation:$deps.activation"
+
+  testCompile("org.junit.jupiter:junit-jupiter-api:5.3.2")
+  testCompile("org.junit.jupiter:junit-jupiter-params:5.3.2")
+  testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
+}
+
+test {
+  useJUnitPlatform()
 }
 
 configurations.all {
@@ -108,6 +123,46 @@ jooq {
 
 compileKotlin.dependsOn(generateKtorDemoJooqSchemaSource)
 generateKtorDemoJooqSchemaSource.dependsOn(flywayMigrate)
+
+task makeTestDb {
+  doLast {
+    def props = new Properties()
+    props.put('user', dbUser)
+    props.put('password', dbPass)
+    // classpath gets weird: DriverManager uses Groovy's classpath, not the gradle task classpath, so the normal way
+    // won't find the driver.
+    new org.postgresql.Driver().connect(jdbcUrl, props).withCloseable { conn ->
+      conn.createStatement().withCloseable { stmt ->
+        def rs = stmt.executeQuery("SELECT count(*) FROM pg_catalog.pg_database WHERE datname = '${testDbName}'")
+        def rowCount = rs.next() ? rs.getInt(1) : 0
+
+        if (rowCount == 0) {
+          // Needs to be superuser to create extensions.
+          stmt.execute("CREATE ROLE \"${testDbUser}\" WITH SUPERUSER LOGIN PASSWORD '${testDbPass}'")
+          stmt.execute("CREATE DATABASE \"${testDbName}\" OWNER '${testDbUser}'")
+        }
+      }
+    }
+  }
+}
+
+task migrateTestDb(type: FlywayMigrateTask, dependsOn: makeTestDb) {
+  url = testJdbcUrl
+  user = testDbUser
+  password = testDbPass
+}
+
+task cleanTestDb(type: FlywayCleanTask) {
+  url = testJdbcUrl
+  user = testDbUser
+  password = testDbPass
+}
+
+migrateTestDb.mustRunAfter(cleanTestDb)
+flywayMigrate.mustRunAfter(flywayClean)
+
+test.dependsOn(migrateTestDb)
+clean.dependsOn(cleanTestDb)
 
 compileKotlin {
   kotlinOptions {

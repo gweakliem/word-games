@@ -51,6 +51,16 @@ Local dev setup steps:
     - It then generates jOOQ sources from that DB: `./gradlew generateKtorDemoJooqSchemaSource`
 - Run `KtorDemo` via IntelliJ, or with `./gradlew run`.
 
+# Testing
+
+Run `./gradlew check`. (You'll need the local postgresql container running.)
+
+Some things to note about the tests:
+
+- Tests should run quickly. To help achieve that, database access is done via a `WidgetDao` interface which has 2 implementations: one that uses PostgreSQL, and another that's in-memory. The former is used only when it's the actual system under test, and the much cheaper in-memory one is used everywhere else. See `WedgetDaoTest.kt`.
+- A separate database for tests is created in the postgresql container so that test data is isolated from any data you might have created when running the actual service. See `build.gradle`.
+- 
+
 # Packaging into a Docker image
 
 - Generate artifact: `./gradlew distTar`. This creates a tarball with all the dependencies and a handy script to run the thing.

@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory
 /**
  * Instead of declaring endpoint logic inline, we can also do it with a class with DI by Guice.
  */
-class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext) {
+class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, daoFactory: DaoFactory) {
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(WidgetEndpoints::class.java)
     }
@@ -34,7 +34,7 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext) {
                 // for no particular reason, we'll run this query async style
                 val deferred = async(Dispatchers.IO) {
                     jooq.transactionResult { txn ->
-                        WidgetDao(txn).getWidget(id)
+                        daoFactory.widgetDao(txn.dsl()).getWidget(id)
                     }
                 }
 
@@ -51,7 +51,7 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext) {
             get("/widgets/all") {
                 val widgets = withContext(Dispatchers.IO) {
                     jooq.transactionResult { txn ->
-                        WidgetDao(txn).getAllWidgets()
+                        daoFactory.widgetDao(txn.dsl()).getAllWidgets()
                     }
                 }
                 call.respond(widgets)
@@ -61,7 +61,7 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext) {
 
                 val result = withContext(Dispatchers.IO) {
                     jooq.transactionResult { txn ->
-                        WidgetDao(txn).createWidget(req.name)
+                        daoFactory.widgetDao(txn.dsl()).createWidget(req.name)
                     }
                 }
 
@@ -74,4 +74,4 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext) {
 /**
  * Deserialized from POSTed JSON.
  */
-data class NewWidgetRequest(@JsonProperty("name") val name: String)
+private data class NewWidgetRequest(@JsonProperty("name") val name: String)
