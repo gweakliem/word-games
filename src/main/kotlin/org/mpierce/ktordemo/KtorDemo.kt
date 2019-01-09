@@ -7,8 +7,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.inject.AbstractModule
 import com.google.inject.Guice
+import com.google.inject.Inject
 import com.google.inject.Injector
 import com.google.inject.Module
+import com.google.inject.Provides
+import com.google.inject.Singleton
 import com.google.inject.Stage
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -17,7 +20,6 @@ import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.jackson.JacksonConverter
-import io.ktor.jackson.jackson
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.apache.commons.configuration.EnvironmentConfiguration
@@ -26,38 +28,61 @@ import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.skife.config.CommonsConfigSource
 import org.skife.config.ConfigurationObjectFactory
+import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
+import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 
 fun main(args: Array<String>) {
-    // Use SLF4J for JUL
+    val start = Instant.now()
+    // Use SLF4J for java.util.logging
     SLF4JBridgeHandler.removeHandlersForRootLogger()
     SLF4JBridgeHandler.install()
+
+    // Help the service start up as fast as possible by initializing a few slow things in different
+    // threads.
+    val initPool = Executors.newCachedThreadPool()
+    val jackson = initPool.submit(Callable<ObjectMapper> {
+        configuredObjectMapper()
+    })
+
+    // This is totally optional but it helps the service start faster by having classes already loaded
+    // by the time they're needed.
+    val otherWarmupFutures = listOf(
+            initPool.submit(::warmUpGuice)
+    )
 
     val config = ConfigurationObjectFactory(CommonsConfigSource(EnvironmentConfiguration()))
             .build(KtorDemoConfig::class.java)
 
-    // For demonstration's sake, we'll let the jooq context be a local var to be used
-    // in the endpoint closures below, but also passed to Guice to be used in endpoint classes
-    val jooq = DSL.using(
-            buildDataSource(
-                    config.dbIp(),
-                    config.dbPort(),
-                    "ktor-demo-dev",
-                    config.dbUser(),
-                    config.dbPassword(),
-                    4,
-                    1
-            ),
-            SQLDialect.POSTGRES)
+    val logger = LoggerFactory.getLogger("org.mpierce.ktordemo")
+
+    val jooq = initPool.submit(Callable<DSLContext> {
+        DSL.using(buildDataSource(
+                config.dbIp(),
+                config.dbPort(),
+                "ktor-demo-dev",
+                config.dbUser(),
+                config.dbPassword(),
+                4,
+                1
+        ),
+                SQLDialect.POSTGRES)
+    })
 
     val server = embeddedServer(Netty, port = config.httpPort()) {
+        configureJackson(this, jackson.get())
         setupGuice(
                 this,
-                JooqModule(jooq),
+                JooqModule(jooq.get()),
                 DaoFactoryModule(SqlDaoFactory())
         )
-        configureJackson(this, configuredObjectMapper())
+        otherWarmupFutures.forEach { it.get() }
+        logger.info("Server initialized in ${Duration.between(start, Instant.now())}")
     }
+    initPool.shutdown()
     server.start(wait = true)
 }
 
@@ -73,10 +98,7 @@ fun setupGuice(app: Application, vararg modules: Module): Injector {
                     listOf(WidgetEndpoints::class.java)
                             .forEach { bind(it).asEagerSingleton() }
 
-                    // sane Guice config
-                    binder().requireAtInjectOnConstructors()
-                    binder().requireExactBindingAnnotations()
-                    binder().requireExplicitBindings()
+                    install(GuiceConfigModule())
                 }
             })
 }
@@ -116,9 +138,46 @@ fun buildDataSource(ip: String, port: Int, dbName: String, user: String, pass: S
     return HikariDataSource(config)
 }
 
+/**
+ * Warm up Guice classes before we actually have the final set of modules available to inject.
+ * This saves a few hundred ms for overall app startup.
+ */
+private fun warmUpGuice() {
+    class Dependent
+    @Suppress("unused")
+    class Depender @Inject constructor(private val dependent: Dependent)
+
+    // warming up Guice pays down about 200ms towards creating the final injector,
+    // which would otherwise typically be the last thing to finish (on Macbook Pro)
+    val injector = Guice.createInjector(Stage.PRODUCTION, object : AbstractModule() {
+        override fun configure() {
+            install(GuiceConfigModule())
+            bind(Depender::class.java)
+        }
+
+        // use a provides method to warm up more reflection stuff
+        @Provides
+        @Singleton
+        fun getDependent(): Dependent = Dependent()
+    })
+
+    injector.getInstance(Depender::class.java)
+}
+
 class JooqModule(private val jooq: DSLContext) : AbstractModule() {
     override fun configure() {
         bind(DSLContext::class.java).toInstance(jooq)
     }
 }
 
+/**
+ * Sane base Guice config
+ */
+class GuiceConfigModule : AbstractModule() {
+    override fun configure() {
+
+        binder().requireAtInjectOnConstructors()
+        binder().requireExactBindingAnnotations()
+        binder().requireExplicitBindings()
+    }
+}

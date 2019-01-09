@@ -3,7 +3,6 @@ package org.mpierce.ktordemo
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.ObjectReader
-import com.fasterxml.jackson.databind.ObjectWriter
 import com.google.inject.Injector
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
