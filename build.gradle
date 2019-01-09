@@ -67,7 +67,7 @@ dependencies {
   compile 'org.skife.config:config-magic:0.17'
   compile 'commons-configuration:commons-configuration:1.10'
 
-  compile 'com.zaxxer:HikariCP:3.2.0'
+  compile 'com.zaxxer:HikariCP:3.3.0'
   compile 'org.jooq:jooq'
   runtime "org.postgresql:postgresql:$deps.postgresql"
   jooqRuntime "org.postgresql:postgresql:$deps.postgresql"
@@ -97,7 +97,7 @@ flyway {
 }
 
 jooq {
-  version = '3.11.8'
+  version = '3.11.9'
   edition = 'OSS'
 
   ktorDemo(sourceSets.main) {
