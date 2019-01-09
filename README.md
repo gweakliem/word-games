@@ -44,7 +44,7 @@ http GET 127.0.0.1:9080/widgets/id/1
 
 Local dev setup steps:
 
-- Install Java 11
+- Install Java 11. [sdkman](http://sdkman.io/) is a handy tool for managing multiple JVM installations.
 - Start a db container: `docker-compose up -d`
 - Do a build: `./gradlew build`
     - This does a DB migration, which you can do yourself too: `./gradlew flywayMigrate`
