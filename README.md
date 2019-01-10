@@ -6,6 +6,8 @@ Its contrived, simplistic workload is to let you create "widgets" and then list 
 
 I make no claim of using any particular feature in the most idiomatic way. If you have suggestions, file an issue or PR.
 
+This project structure isn't about showing you how to write a web service in the minimum number of lines of code. That's a false economy once you're past trivial projects -- IMO, you're better off having a bit of glue code *under your control* so that you can change how things are wired up as your needs change. So, unlike many toy / demo projects, this shows how to do things in a realistic way that also allows you a lot of flexibility in how you configure things or which libraries to use.
+
 ## Ingredients
 
 - [Kotlin](https://kotlinlang.org/): A nice language for the JVM with coroutine support.

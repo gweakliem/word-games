@@ -42,7 +42,7 @@ fun main(args: Array<String>) {
     SLF4JBridgeHandler.install()
 
     // Help the service start up as fast as possible by initializing a few slow things in different
-    // threads.
+    // threads. If using threads is confusing, just remove the thread pool and do things serially.
     val initPool = Executors.newCachedThreadPool()
     val jackson = initPool.submit(Callable<ObjectMapper> {
         configuredObjectMapper()
@@ -54,25 +54,17 @@ fun main(args: Array<String>) {
             initPool.submit(::warmUpGuice)
     )
 
+    // This loads config from environment variables, but this can be trivially replaced or augmented with files or
+    // any other type of config you like
     val config = ConfigurationObjectFactory(CommonsConfigSource(EnvironmentConfiguration()))
             .build(KtorDemoConfig::class.java)
 
     val logger = LoggerFactory.getLogger("org.mpierce.ktordemo")
 
-    val jooq = initPool.submit(Callable<DSLContext> {
-        DSL.using(buildDataSource(
-                config.dbIp(),
-                config.dbPort(),
-                "ktor-demo-dev",
-                config.dbUser(),
-                config.dbPassword(),
-                4,
-                1
-        ),
-                SQLDialect.POSTGRES)
-    })
+    val jooq = initPool.submit(Callable<DSLContext> { buildJooqDsl(config) })
 
     val server = embeddedServer(Netty, port = config.httpPort()) {
+        // any other ktor features would be set up here
         configureJackson(this, jackson.get())
         setupGuice(
                 this,
@@ -136,6 +128,19 @@ fun buildDataSource(ip: String, port: Int, dbName: String, user: String, pass: S
         connectionInitSql = "SET TIME ZONE 'UTC'"
     }
     return HikariDataSource(config)
+}
+
+private fun buildJooqDsl(config: KtorDemoConfig): DSLContext? {
+    return DSL.using(buildDataSource(
+            config.dbIp(),
+            config.dbPort(),
+            "ktor-demo-dev",
+            config.dbUser(),
+            config.dbPassword(),
+            4,
+            1
+    ),
+            SQLDialect.POSTGRES)
 }
 
 /**
