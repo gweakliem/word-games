@@ -28,6 +28,16 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
 
         return Widget(result)
     }
+
+    override fun updateWidgetName(id: Int, name: String): Widget {
+        val result = txnContext.update(WIDGETS)
+                .set(WIDGETS.NAME, name)
+                .where(WIDGETS.ID.eq(id))
+                .returning()
+                .fetchOne()
+
+        return Widget(result)
+    }
 }
 
 class SqlDaoFactory : DaoFactory {

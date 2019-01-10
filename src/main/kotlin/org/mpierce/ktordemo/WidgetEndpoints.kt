@@ -9,6 +9,7 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.post
+import io.ktor.routing.put
 import io.ktor.routing.routing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -48,6 +49,18 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
                     else -> call.respond(w)
                 }
             }
+
+            put("widgets/id/{id}") {
+                val id = call.parameters["id"]!!.toInt()
+                val name = call.parameters["name"]!!.toString()
+
+                val widget = jooq.transactionResult { txn ->
+                    daoFactory.widgetDao(txn.dsl()).updateWidgetName(id, name)
+                }
+
+                call.respond(widget)
+            }
+
             get("/widgets/all") {
                 val widgets = withContext(Dispatchers.IO) {
                     jooq.transactionResult { txn ->
@@ -56,6 +69,7 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
                 }
                 call.respond(widgets)
             }
+
             post("/widgets") {
                 val req = call.receive<NewWidgetRequest>()
 

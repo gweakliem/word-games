@@ -22,4 +22,10 @@ class MemoryWidgetDao : WidgetDao {
         widgets[w.id] = w
         return w
     }
+
+    override fun updateWidgetName(id: Int, name: String): Widget {
+        val widget = widgets[id]!!.copy(name = name)
+        widgets[id] = widget
+        return widget
+    }
 }

@@ -41,6 +41,19 @@ abstract class WidgetDaoTestBase {
             assertEquals(listOf(w1, w2), widgetDao.getAllWidgets())
         }
     }
+
+    @Test
+    internal fun updateChangesName() {
+        dslContext().transaction { t ->
+            val widgetDao = daoFactory().widgetDao(t.dsl())
+
+            val w = widgetDao.createWidget("foo")
+            val newName = "bar"
+            widgetDao.updateWidgetName(w.id, newName)
+
+            assertEquals(w.copy(name = newName), widgetDao.getWidget(w.id))
+        }
+    }
 }
 
 class MemoryWidgetDaoTest : WidgetDaoTestBase() {
