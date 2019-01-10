@@ -16,6 +16,7 @@ interface WidgetDao {
      */
     fun getAllWidgets(): List<Widget>
     fun createWidget(name: String): Widget
+    fun updateWidgetName(id: Int, name: String): Widget
 }
 
 /**
