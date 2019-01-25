@@ -61,6 +61,7 @@ internal class WidgetEndpointsTest {
                 setBody("""{
                     "name": "qwerty"
                     }""")
+                addHeader("Content-Type", "application/json")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
 

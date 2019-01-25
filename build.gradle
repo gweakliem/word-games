@@ -21,7 +21,7 @@ plugins {
 
 ext {
   deps = [
-      ktor      : '1.1.1',
+      ktor      : '1.1.2',
       // also see version in buildscript
       postgresql: '42.2.5',
       jackson   : '2.9.8',
