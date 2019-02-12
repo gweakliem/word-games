@@ -32,7 +32,8 @@ val deps by extra {
             // also see versions in buildscript
             "jaxb" to "2.3.0.1",
             "jaxbApi" to "2.3.0",
-            "activation" to "1.2.0"
+            "activation" to "1.2.0",
+            "junit" to "5.4.0"
     )
 }
 
@@ -74,7 +75,7 @@ dependencies {
     compile("org.skife.config:config-magic:0.17")
     compile("commons-configuration:commons-configuration:1.10")
 
-    compile("com.zaxxer:HikariCP:3.3.0")
+    compile("com.zaxxer:HikariCP:3.3.1")
     compile("org.jooq:jooq")
     runtime("org.postgresql:postgresql:${deps["postgresql"]}")
     jooqRuntime("org.postgresql:postgresql:${deps["postgresql"]}")
@@ -83,9 +84,9 @@ dependencies {
     jooqRuntime("javax.xml.bind:jaxb-api:${deps["jaxbApi"]}")
     jooqRuntime("com.sun.activation:javax.activation:${deps["activation"]}")
 
-    testCompile("org.junit.jupiter:junit-jupiter-api:5.3.2")
-    testCompile("org.junit.jupiter:junit-jupiter-params:5.3.2")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
+    testCompile("org.junit.jupiter:junit-jupiter-api:${deps["junit"]}")
+    testCompile("org.junit.jupiter:junit-jupiter-params:${deps["junit"]}")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:${deps["junit"]}")
 }
 
 tasks.test {
