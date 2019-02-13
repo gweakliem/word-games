@@ -15,11 +15,11 @@ buildscript {
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm").version("1.3.21")
+    id("org.jetbrains.kotlin.jvm") version "1.3.21"
     id("application")
-    id("org.flywaydb.flyway").version("5.2.4")
-    id("nu.studer.jooq").version("3.0.3")
-    id("com.github.ben-manes.versions").version("0.20.0")
+    id("org.flywaydb.flyway") version "5.2.4"
+    id("nu.studer.jooq") version "3.0.3"
+    id("com.github.ben-manes.versions") version "0.20.0"
 }
 
 val deps by extra {
