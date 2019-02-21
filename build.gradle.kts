@@ -24,11 +24,11 @@ plugins {
 
 val deps by extra {
     mapOf(
-            "ktor" to "1.1.2",
+            "ktor" to "1.1.3",
             // also see version in buildscript
             "postgresql" to "42.2.5",
             "jackson" to "2.9.8",
-            "slf4j" to "1.7.25",
+            "slf4j" to "1.7.26",
             // also see versions in buildscript
             "jaxb" to "2.3.0.1",
             "jaxbApi" to "2.3.0",
