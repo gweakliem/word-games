@@ -19,7 +19,7 @@ plugins {
     id("application")
     id("org.flywaydb.flyway") version "5.2.4"
     id("nu.studer.jooq") version "3.0.3"
-    id("com.github.ben-manes.versions") version "0.20.0"
+    id("com.github.ben-manes.versions") version "0.21.0"
 }
 
 val deps by extra {
