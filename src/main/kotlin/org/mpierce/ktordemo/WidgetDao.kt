@@ -10,13 +10,32 @@ import java.time.Instant
  * This allows tests that aren't testing SQL specifically to run much faster.
  */
 interface WidgetDao {
+    /**
+     * @return the widget with that id, or null if not found
+     */
     fun getWidget(id: Int): Widget?
+
     /**
      * @return All widgets in creation order (newest last).
      */
     fun getAllWidgets(): List<Widget>
+
+    /**
+     * @return the newly created Widget
+     */
     fun createWidget(name: String): Widget
+
+    /**
+     * @return the updated Widget
+     */
     fun updateWidgetName(id: Int, name: String): Widget
+
+    /**
+     * An example of a reporting-type query.
+     *
+     * @return a map of one letter strings to how many widgets had a name that started with that string
+     */
+    fun widgetNameFirstLetterCounts(): Map<String, Int>
 }
 
 /**

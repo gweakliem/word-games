@@ -1,5 +1,5 @@
 CREATE TABLE widgets (
-  id serial NOT NULL PRIMARY KEY,
-  name varchar(100) NOT NULL,
-  created_at timestamp without time zone NOT NULL default now()
+    id         SERIAL                   NOT NULL PRIMARY KEY,
+    name       TEXT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 )

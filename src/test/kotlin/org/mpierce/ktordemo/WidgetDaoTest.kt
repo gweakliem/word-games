@@ -54,6 +54,27 @@ abstract class WidgetDaoTestBase {
             assertEquals(w.copy(name = newName), widgetDao.getWidget(w.id))
         }
     }
+
+    @Test
+    internal fun firstLetterCounts() {
+        dslContext().transaction { t ->
+            val widgetDao = daoFactory().widgetDao(t.dsl())
+
+            listOf("kangaroo", "Kookaburra", "KOALA", "platypus", "echidna", "wombat", "wallaby").forEach {
+                widgetDao.createWidget(it)
+            }
+
+            val actual = widgetDao.widgetNameFirstLetterCounts()
+            assertEquals(mapOf(
+                    "E" to 1,
+                    "K" to 3,
+                    "P" to 1,
+                    "W" to 2
+            ), actual)
+            // in alphabetical order
+            assertEquals(listOf("E", "K", "P", "W"), actual.keys.toList())
+        }
+    }
 }
 
 class MemoryWidgetDaoTest : WidgetDaoTestBase() {

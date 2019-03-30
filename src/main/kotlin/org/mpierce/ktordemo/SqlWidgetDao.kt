@@ -1,6 +1,8 @@
 package org.mpierce.ktordemo
 
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
+import org.jooq.impl.SQLDataType
 import org.mpierce.ktordemo.jooq.Tables.WIDGETS
 
 class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
@@ -56,6 +58,31 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
                 .fetchOne()
 
         return Widget(result)
+    }
+
+    override fun widgetNameFirstLetterCounts(): Map<String, Int> {
+        // This isn't the only way to do it in SQL, but this way demonstrates some of the flexibility of jOOQ:
+        // we're creating a select expression to use as a table, and referencing a column from within that expression.
+        // This shows how to use both code gen'd tables and columns like WIDGET.NAME as well as dynamic things like
+        // our "prefixes" table and "prefix" column.
+
+        val prefixes = txnContext
+                .select(DSL.upper(DSL.left(WIDGETS.NAME, 1)).`as`("prefix"))
+                .from(WIDGETS)
+                .asTable("prefixes")
+
+        val field = prefixes.field("prefix").coerce(SQLDataType.CLOB)
+
+        return txnContext
+                .select(field, DSL.count())
+                .from(prefixes)
+                .groupBy(field)
+                .orderBy(field)
+                .fetch()
+                // turn the Record2 tuple type into a Kotlin Pair
+                .map { Pair(it.value1(), it.value2()) }
+                // treat the Pairs as key -> value in a map, which keeps iteration order
+                .toMap()
     }
 }
 
