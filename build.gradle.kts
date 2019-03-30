@@ -33,7 +33,7 @@ val deps by extra {
             "jaxb" to "2.3.0.1",
             "jaxbApi" to "2.3.0",
             "activation" to "1.2.0",
-            "junit" to "5.4.0"
+            "junit" to "5.4.1"
     )
 }
 
