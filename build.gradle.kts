@@ -132,7 +132,7 @@ tasks {
         }
     }
 
-    val cleanTestDb by registering(FlywayCleanTask::class) {
+    val flywayCleanTest by registering(FlywayCleanTask::class) {
         url = testJdbcUrl
         user = testDbUser
         password = testDbPass
@@ -140,13 +140,13 @@ tasks {
         dependsOn(makeTestDb)
     }
 
-    val migrateTestDb by registering(FlywayMigrateTask::class) {
+    val flywayMigrateTest by registering(FlywayMigrateTask::class) {
         url = testJdbcUrl
         user = testDbUser
         password = testDbPass
 
         dependsOn(makeTestDb)
-        mustRunAfter(cleanTestDb)
+        mustRunAfter(flywayCleanTest)
     }
 
     flywayMigrate {
@@ -154,11 +154,11 @@ tasks {
     }
 
     test {
-        dependsOn(migrateTestDb)
+        dependsOn(flywayMigrateTest)
     }
 
     clean {
-        dependsOn(cleanTestDb)
+        dependsOn(flywayCleanTest)
     }
 }
 
