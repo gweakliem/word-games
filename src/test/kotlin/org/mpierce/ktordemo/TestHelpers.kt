@@ -26,7 +26,7 @@ class DbTestHelper : Closeable {
     val dslContext: DSLContext
 
     init {
-        dslContext = DSL.using(dataSource, SQLDialect.POSTGRES)
+        dslContext = buildJooqDsl(dataSource)
     }
 
     fun deleteAllRows() {

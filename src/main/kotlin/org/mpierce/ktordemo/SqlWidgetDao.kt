@@ -39,9 +39,11 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
 
         val record = txnContext.newRecord(WIDGETS).apply {
             this.name = name
+            // this inserts the row, and since we're on Postgres, we also have jOOQ configured (see `buildJooqDsl()`)
+            // to use INSERT ... RETURNING, which means that this will also populate the id and createdAt values, which
+            // the db generates.
             store()
-            // the db row exists, but this object doesn't know about db-generated data, so we explicitly refresh
-            refresh()
+            // If we weren't able to use INSERT ... RETURNING, we'd need to also do a refresh() here.
         }
 
         return Widget(record)

@@ -25,6 +25,7 @@ import io.ktor.server.netty.Netty
 import org.apache.commons.configuration.EnvironmentConfiguration
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
+import org.jooq.conf.Settings
 import org.jooq.impl.DSL
 import org.skife.config.CommonsConfigSource
 import org.skife.config.ConfigurationObjectFactory
@@ -61,7 +62,17 @@ fun main(args: Array<String>) {
 
     val logger = LoggerFactory.getLogger("org.mpierce.ktordemo")
 
-    val jooq = initPool.submit(Callable<DSLContext> { buildJooqDsl(config) })
+    val jooq = initPool.submit(Callable<DSLContext> {
+        buildJooqDsl(buildDataSource(
+                config.dbIp(),
+                config.dbPort(),
+                "ktor-demo-dev",
+                config.dbUser(),
+                config.dbPassword(),
+                4,
+                1
+        ))
+    })
 
     val server = embeddedServer(Netty, port = config.httpPort()) {
         // any other ktor features would be set up here
@@ -130,17 +141,13 @@ fun buildDataSource(ip: String, port: Int, dbName: String, user: String, pass: S
     return HikariDataSource(config)
 }
 
-private fun buildJooqDsl(config: KtorDemoConfig): DSLContext? {
-    return DSL.using(buildDataSource(
-            config.dbIp(),
-            config.dbPort(),
-            "ktor-demo-dev",
-            config.dbUser(),
-            config.dbPassword(),
-            4,
-            1
-    ),
-            SQLDialect.POSTGRES)
+fun buildJooqDsl(hikariDataSource: HikariDataSource): DSLContext {
+    return DSL.using(hikariDataSource,
+            SQLDialect.POSTGRES,
+            Settings()
+                    // we're using Postgres, so we can use INSERT ... RETURNING to get db-created column values on new
+                    // rows without a separate query
+                    .withReturnAllOnUpdatableRecord(true))
 }
 
 /**
