@@ -25,6 +25,7 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
 
     override fun createWidget(name: String): Widget {
         // This method returns a Widget, which includes a `createdAt` timestamp set by the database.
+        // If we wanted to use plain SQL, we can do it with `insertInto()`.
         // In PostgreSQL, we can use the RETURNING clause to insert a new record and get back the db-generated
         // primary key and timestamp as follows, which produces a fully populated WidgetsRecord:
         /*
@@ -34,9 +35,7 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
             .fetchOne()
          */
         // See https://www.jooq.org/doc/3.11/manual/sql-building/sql-statements/insert-statement/insert-returning/.
-        // However, just to show how to do it with other databases that lack support for that, here we'll use a
-        // WidgetsRecord to create a new row with a separate INSERT and SELECT.
-
+        // However, we can also do it using the generated UpdatableRecord implementation for the widgets table:
         val record = txnContext.newRecord(WIDGETS).apply {
             this.name = name
             // this inserts the row, and since we're on Postgres, we also have jOOQ configured (see `buildJooqDsl()`)
