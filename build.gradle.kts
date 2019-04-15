@@ -15,7 +15,7 @@ buildscript {
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.21"
+    id("org.jetbrains.kotlin.jvm") version "1.3.30"
     id("application")
     id("org.flywaydb.flyway") version "5.2.4"
     id("nu.studer.jooq") version "3.0.3"
@@ -24,7 +24,7 @@ plugins {
 
 val deps by extra {
     mapOf(
-            "ktor" to "1.1.3",
+            "ktor" to "1.1.4",
             // also see version in buildscript
             "postgresql" to "42.2.5",
             "jackson" to "2.9.8",
@@ -33,7 +33,7 @@ val deps by extra {
             "jaxb" to "2.3.0.1",
             "jaxbApi" to "2.3.0",
             "activation" to "1.2.0",
-            "junit" to "5.4.1"
+            "junit" to "5.4.2"
     )
 }
 
@@ -84,9 +84,8 @@ dependencies {
     jooqRuntime("javax.xml.bind:jaxb-api:${deps["jaxbApi"]}")
     jooqRuntime("com.sun.activation:javax.activation:${deps["activation"]}")
 
-    testCompile("org.junit.jupiter:junit-jupiter-api:${deps["junit"]}")
-    testCompile("org.junit.jupiter:junit-jupiter-params:${deps["junit"]}")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:${deps["junit"]}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${deps["junit"]}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${deps["junit"]}")
 }
 
 tasks.test {
