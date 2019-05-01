@@ -24,7 +24,7 @@ plugins {
 
 val deps by extra {
     mapOf(
-            "ktor" to "1.1.4",
+            "ktor" to "1.2.0-rc",
             // also see version in buildscript
             "postgresql" to "42.2.5",
             "jackson" to "2.9.8",
