@@ -52,6 +52,7 @@ Local dev setup steps:
     - This does a DB migration, which you can do yourself too: `./gradlew flywayMigrate`
     - It then generates jOOQ sources from that DB: `./gradlew generateKtorDemoJooqSchemaSource`
 - Run `KtorDemo` via IntelliJ, or with `./gradlew run`.
+    - It takes one command line arg (already set up for you if you use the `run` task), which should be the path to the `local-dev-config` directory.
 
 # Testing
 

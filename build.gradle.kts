@@ -50,6 +50,10 @@ apply(from = "jooq.gradle")
 application {
     mainClassName = "org.mpierce.ktordemo.KtorDemoKt"
 }
+// 'run' is a kotlin built-in function
+tasks.named<JavaExec>("run") {
+    args = listOf("local-dev-config")
+}
 
 repositories {
     jcenter()

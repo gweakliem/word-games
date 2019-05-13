@@ -22,7 +22,10 @@ import io.ktor.http.ContentType
 import io.ktor.jackson.JacksonConverter
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.util.extension
+import org.apache.commons.configuration.CompositeConfiguration
 import org.apache.commons.configuration.EnvironmentConfiguration
+import org.apache.commons.configuration.PropertiesConfiguration
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.conf.Settings
@@ -31,6 +34,9 @@ import org.skife.config.CommonsConfigSource
 import org.skife.config.ConfigurationObjectFactory
 import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.Callable
@@ -43,7 +49,7 @@ fun main(args: Array<String>) {
     SLF4JBridgeHandler.install()
 
     // Help the service start up as fast as possible by initializing a few slow things in different
-    // threads. If using threads is confusing, just remove the thread pool and do things serially.
+    // threads. If threading is too much complexity, just remove the thread pool and do things serially.
     val initPool = Executors.newCachedThreadPool()
     val jackson = initPool.submit(Callable<ObjectMapper> {
         configuredObjectMapper()
@@ -55,10 +61,21 @@ fun main(args: Array<String>) {
             initPool.submit(::warmUpGuice)
     )
 
-    // This loads config from environment variables, but this can be trivially replaced or augmented with files or
-    // any other type of config you like
-    val config = ConfigurationObjectFactory(CommonsConfigSource(EnvironmentConfiguration()))
-            .build(KtorDemoConfig::class.java)
+    // Here, we use commons-configuration's CompositeConfiguration and config-magic to let us combine different config
+    // sources.
+    val config = CompositeConfiguration()
+            .apply {
+                // first, look in environment vars
+                addConfiguration(EnvironmentConfiguration())
+                // then, apply any config files found in the config directory
+                applyConfigFiles(args.getOrElse(0) { throw RuntimeException("Must provide config dir as a CLI arg") },
+                        this)
+            }
+            .let {
+                // and make an instance of KtorDemoConfig with data from the above
+                ConfigurationObjectFactory(CommonsConfigSource(it))
+                        .build(KtorDemoConfig::class.java)
+            }
 
     val logger = LoggerFactory.getLogger("org.mpierce.ktordemo")
 
@@ -73,6 +90,7 @@ fun main(args: Array<String>) {
                 1
         ))
     })
+    initPool.shutdown()
 
     val server = embeddedServer(Netty, port = config.httpPort()) {
         // any other ktor features would be set up here
@@ -85,7 +103,6 @@ fun main(args: Array<String>) {
         otherWarmupFutures.forEach { it.get() }
         logger.info("Server initialized in ${Duration.between(start, Instant.now())}")
     }
-    initPool.shutdown()
     server.start(wait = true)
 }
 
@@ -149,6 +166,32 @@ fun buildJooqDsl(hikariDataSource: HikariDataSource): DSLContext {
                     // rows without a separate query
                     .withReturnAllOnUpdatableRecord(true))
 }
+
+/**
+ * Apply properties files in the provided directory to the compsite configuration in sorted order.
+ *
+ * Later files overwrite previous files. In other words, data in 02-bar.properties will take precedence over
+ * 01-foo.properties.
+ */
+fun applyConfigFiles(configDir: String, composite: CompositeConfiguration) {
+    Files.newDirectoryStream(Paths.get(configDir))
+            .filter { p -> p.extension == "properties" }
+            .toList()
+            .sorted()
+            // CompositeConfiguration uses "first match wins" but we want the opposite
+            .reversed()
+            .forEach { p ->
+                val props = PropertiesConfiguration().apply {
+                    encoding = StandardCharsets.UTF_8.name()
+                    isDelimiterParsingDisabled = true
+                }
+                Files.newInputStream(p).use { i ->
+                    props.load(i)
+                }
+                composite.addConfiguration(props)
+            }
+}
+
 
 /**
  * Warm up Guice classes before we actually have the final set of modules available to inject.
