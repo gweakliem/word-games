@@ -1,7 +1,7 @@
 // jooq plugin is tough to use via Kotlin until https://github.com/etiennestuder/gradle-jooq-plugin/pull/91
 
 jooq {
-  version = "3.11.9"
+  version = "3.11.11"
   edition = "OSS"
 
   primaryDb(sourceSets.main) {
