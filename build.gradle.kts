@@ -27,7 +27,7 @@ val deps by extra {
             "ktor" to "1.2.0",
             // also see version in buildscript
             "postgresql" to "42.2.5",
-            "jackson" to "2.9.8",
+            "jackson" to "2.9.9",
             "slf4j" to "1.7.26",
             // also see versions in buildscript
             "jaxb" to "2.3.0.1",
