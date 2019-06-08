@@ -60,27 +60,27 @@ repositories {
 }
 
 dependencies {
-    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    compile("io.ktor:ktor-server-core:${deps["ktor"]}")
-    compile("io.ktor:ktor-server-netty:${deps["ktor"]}")
-    compile("io.ktor:ktor-jackson:${deps["ktor"]}")
-    testCompile("io.ktor:ktor-server-test-host:${deps["ktor"]}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("io.ktor:ktor-server-core:${deps["ktor"]}")
+    implementation("io.ktor:ktor-server-netty:${deps["ktor"]}")
+    implementation("io.ktor:ktor-jackson:${deps["ktor"]}")
+    testImplementation("io.ktor:ktor-server-test-host:${deps["ktor"]}")
 
-    compile("com.fasterxml.jackson.core:jackson-databind:${deps["jackson"]}")
-    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${deps["jackson"]}")
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:${deps["jackson"]}")
+    implementation("com.fasterxml.jackson.core:jackson-databind:${deps["jackson"]}")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${deps["jackson"]}")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${deps["jackson"]}")
 
     runtime("ch.qos.logback:logback-classic:1.2.3")
     runtime("org.slf4j:jcl-over-slf4j:${deps["slf4j"]}")
-    compile("org.slf4j:jul-to-slf4j:${deps["slf4j"]}")
+    implementation("org.slf4j:jul-to-slf4j:${deps["slf4j"]}")
 
-    compile("com.google.inject:guice:4.2.2")
+    implementation("com.google.inject:guice:4.2.2")
 
-    compile("org.skife.config:config-magic:0.17")
-    compile("commons-configuration:commons-configuration:1.10")
+    implementation("org.skife.config:config-magic:0.17")
+    implementation("commons-configuration:commons-configuration:1.10")
 
-    compile("com.zaxxer:HikariCP:3.3.1")
-    compile("org.jooq:jooq")
+    implementation("com.zaxxer:HikariCP:3.3.1")
+    implementation("org.jooq:jooq")
     runtime("org.postgresql:postgresql:${deps["postgresql"]}")
     jooqRuntime("org.postgresql:postgresql:${deps["postgresql"]}")
     jooqRuntime("com.sun.xml.bind:jaxb-impl:${deps["jaxb"]}")
@@ -166,5 +166,6 @@ tasks {
 }
 
 // compile to java 8 bytecode, not java 6
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "1.8"
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+}
