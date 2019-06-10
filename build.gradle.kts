@@ -88,6 +88,8 @@ dependencies {
     jooqRuntime("javax.xml.bind:jaxb-api:${deps["jaxbApi"]}")
     jooqRuntime("com.sun.activation:javax.activation:${deps["activation"]}")
 
+    implementation("org.mpierce.guice.warmup:guice-warmup:0.1")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:${deps["junit"]}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${deps["junit"]}")
 }

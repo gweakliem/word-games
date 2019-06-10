@@ -30,6 +30,7 @@ import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.conf.Settings
 import org.jooq.impl.DSL
+import org.mpierce.guice.warmup.GuiceWarmup
 import org.skife.config.CommonsConfigSource
 import org.skife.config.ConfigurationObjectFactory
 import org.slf4j.LoggerFactory
@@ -58,7 +59,7 @@ fun main(args: Array<String>) {
     // This is totally optional but it helps the service start faster by having classes already loaded
     // by the time they're needed.
     val otherWarmupFutures = listOf(
-            initPool.submit(::warmUpGuice)
+            initPool.submit { GuiceWarmup.warmUp() }
     )
 
     // Here, we use commons-configuration's CompositeConfiguration and config-magic to let us combine different config
@@ -190,33 +191,6 @@ fun applyConfigFiles(configDir: String, composite: CompositeConfiguration) {
                 }
                 composite.addConfiguration(props)
             }
-}
-
-
-/**
- * Warm up Guice classes before we actually have the final set of modules available to inject.
- * This saves a few hundred ms for overall app startup.
- */
-private fun warmUpGuice() {
-    class Dependent
-    @Suppress("unused")
-    class Depender @Inject constructor(private val dependent: Dependent)
-
-    // warming up Guice pays down about 200ms towards creating the final injector,
-    // which would otherwise typically be the last thing to finish (on Macbook Pro)
-    val injector = Guice.createInjector(Stage.PRODUCTION, object : AbstractModule() {
-        override fun configure() {
-            install(GuiceConfigModule())
-            bind(Depender::class.java)
-        }
-
-        // use a provides method to warm up more reflection stuff
-        @Provides
-        @Singleton
-        fun getDependent(): Dependent = Dependent()
-    })
-
-    injector.getInstance(Depender::class.java)
 }
 
 class JooqModule(private val jooq: DSLContext) : AbstractModule() {
