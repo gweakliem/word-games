@@ -1,0 +1,18 @@
+image: docker:stable
+
+pipelines:
+  default:
+    - step:
+        services:
+          - docker
+        caches:
+          - gradle
+          - docker
+        script:
+          - apk add --no-cache py-pip bash python-dev libffi-dev openssl-dev gcc libc-dev make
+          - pip install --no-cache-dir 'docker-compose==1.24.0'
+          - docker-compose up -d
+          - mkdir -p /usr/local/zulu \
+            && wget https://cdn.azul.com/zulu/bin/zulu11.31.11-ca-jdk11.0.3-linux_musl_x64.tar.gz -O - \
+            | tar -xz -f - -C /usr/local/zulu
+          - JAVA_HOME=/usr/local/zulu/zulu11.31.11-ca-jdk11.0.3-linux_musl_x64 ./gradlew check
