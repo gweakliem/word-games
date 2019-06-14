@@ -11,7 +11,9 @@ services:
       - '127.0.0.1:25432:5432'
     networks:
       - ktor-demo
-
+    volumes:
+      # one-time setup scripts
+      - ./docker-compose/pginit:/docker-entrypoint-initdb.d
 
 networks:
   ktor-demo:

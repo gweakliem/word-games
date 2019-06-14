@@ -1,8 +1,6 @@
 import org.flywaydb.gradle.task.FlywayCleanTask
 import org.flywaydb.gradle.task.FlywayMigrateTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.postgresql.Driver
-import java.util.Properties
 
 buildscript {
     dependencies {
@@ -110,39 +108,10 @@ flyway {
 }
 
 tasks {
-    val makeTestDb by registering {
-        doLast {
-            val props = Properties()
-            props["user"] = dbUser
-            props["password"] = dbPass
-            // classpath gets weird: DriverManager uses Groovy's classpath, not the gradle task classpath, so the normal way
-            // won't find the driver.
-            Driver().connect(jdbcUrl, props).use { conn ->
-                conn.createStatement().use { stmt ->
-                    val rs = stmt.executeQuery(
-                            "SELECT count(*) FROM pg_catalog.pg_database WHERE datname = '$testDbName'")
-                    val rowCount = if (rs.next()) {
-                        rs.getInt(1)
-                    } else {
-                        0
-                    }
-
-                    if (rowCount == 0) {
-                        // Needs to be superuser to create extensions.
-                        stmt.execute("CREATE ROLE \"$testDbUser\" WITH SUPERUSER LOGIN PASSWORD '$testDbPass'")
-                        stmt.execute("CREATE DATABASE \"$testDbName\" OWNER '$testDbUser'")
-                    }
-                }
-            }
-        }
-    }
-
     val flywayCleanTest by registering(FlywayCleanTask::class) {
         url = testJdbcUrl
         user = testDbUser
         password = testDbPass
-
-        dependsOn(makeTestDb)
     }
 
     val flywayMigrateTest by registering(FlywayMigrateTask::class) {
@@ -150,7 +119,6 @@ tasks {
         user = testDbUser
         password = testDbPass
 
-        dependsOn(makeTestDb)
         mustRunAfter(flywayCleanTest)
     }
 
