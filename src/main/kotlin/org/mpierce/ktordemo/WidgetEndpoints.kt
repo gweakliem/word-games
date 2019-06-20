@@ -54,8 +54,10 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
                 val id = call.parameters["id"]!!.toInt()
                 val name = call.parameters["name"]!!.toString()
 
-                val widget = jooq.transactionResult { txn ->
-                    daoFactory.widgetDao(txn.dsl()).updateWidgetName(id, name)
+                val widget = withContext(Dispatchers.IO) {
+                    jooq.transactionResult { txn ->
+                        daoFactory.widgetDao(txn.dsl()).updateWidgetName(id, name)
+                    }
                 }
 
                 call.respond(widget)
