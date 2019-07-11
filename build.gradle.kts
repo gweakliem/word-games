@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql:postgresql:42.2.5")
+        classpath("org.postgresql:postgresql:42.2.6")
         // used by jooq gradle plugin to write config
         classpath("com.sun.xml.bind:jaxb-impl:2.3.0.1")
         classpath("com.sun.xml.bind:jaxb-core:2.3.0.1")
@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.40"
+    id("org.jetbrains.kotlin.jvm") version "1.3.41"
     id("application")
     id("org.flywaydb.flyway") version "5.2.4"
     id("nu.studer.jooq") version "3.0.3"
@@ -24,14 +24,14 @@ val deps by extra {
     mapOf(
             "ktor" to "1.2.2",
             // also see version in buildscript
-            "postgresql" to "42.2.5",
+            "postgresql" to "42.2.6",
             "jackson" to "2.9.9",
             "slf4j" to "1.7.26",
             // also see versions in buildscript
             "jaxb" to "2.3.0.1",
             "jaxbApi" to "2.3.0",
             "activation" to "1.2.0",
-            "junit" to "5.4.2"
+            "junit" to "5.5.0"
     )
 }
 
