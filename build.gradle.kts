@@ -17,12 +17,12 @@ plugins {
     id("application")
     id("org.flywaydb.flyway") version "5.2.4"
     id("nu.studer.jooq") version "3.0.3"
-    id("com.github.ben-manes.versions") version "0.21.0"
+    id("com.github.ben-manes.versions") version "0.22.0"
 }
 
 val deps by extra {
     mapOf(
-            "ktor" to "1.2.2",
+            "ktor" to "1.2.3",
             // also see version in buildscript
             "postgresql" to "42.2.6",
             "jackson" to "2.9.9",
@@ -31,7 +31,7 @@ val deps by extra {
             "jaxb" to "2.3.0.1",
             "jaxbApi" to "2.3.0",
             "activation" to "1.2.0",
-            "junit" to "5.5.0"
+            "junit" to "5.5.1"
     )
 }
 
