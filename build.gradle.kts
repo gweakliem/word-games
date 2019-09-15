@@ -4,34 +4,26 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql:postgresql:42.2.6")
-        // used by jooq gradle plugin to write config
-        classpath("com.sun.xml.bind:jaxb-impl:2.3.0.1")
-        classpath("com.sun.xml.bind:jaxb-core:2.3.0.1")
-        classpath("com.sun.activation:javax.activation:1.2.0")
+        classpath("org.postgresql:postgresql:42.2.8")
     }
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.41"
+    id("org.jetbrains.kotlin.jvm") version "1.3.50"
     id("application")
-    id("org.flywaydb.flyway") version "5.2.4"
+    id("org.flywaydb.flyway") version "6.0.3"
     id("nu.studer.jooq") version "3.0.3"
-    id("com.github.ben-manes.versions") version "0.22.0"
+    id("com.github.ben-manes.versions") version "0.25.0"
 }
 
 val deps by extra {
     mapOf(
-            "ktor" to "1.2.3",
+            "ktor" to "1.2.4",
             // also see version in buildscript
-            "postgresql" to "42.2.6",
+            "postgresql" to "42.2.8",
             "jackson" to "2.9.9",
             "slf4j" to "1.7.26",
-            // also see versions in buildscript
-            "jaxb" to "2.3.0.1",
-            "jaxbApi" to "2.3.0",
-            "activation" to "1.2.0",
-            "junit" to "5.5.1"
+            "junit" to "5.5.2"
     )
 }
 
@@ -81,10 +73,6 @@ dependencies {
     implementation("org.jooq:jooq")
     runtime("org.postgresql:postgresql:${deps["postgresql"]}")
     jooqRuntime("org.postgresql:postgresql:${deps["postgresql"]}")
-    jooqRuntime("com.sun.xml.bind:jaxb-impl:${deps["jaxb"]}")
-    jooqRuntime("com.sun.xml.bind:jaxb-core:${deps["jaxb"]}")
-    jooqRuntime("javax.xml.bind:jaxb-api:${deps["jaxbApi"]}")
-    jooqRuntime("com.sun.activation:javax.activation:${deps["activation"]}")
 
     implementation("org.mpierce.guice.warmup:guice-warmup:0.1")
 
