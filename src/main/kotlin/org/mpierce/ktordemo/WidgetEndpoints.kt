@@ -13,7 +13,6 @@ import io.ktor.routing.put
 import io.ktor.routing.routing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
 import org.jooq.DSLContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -34,8 +33,8 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
 
                 // for no particular reason, we'll run this query async style
                 val deferred = async(Dispatchers.IO) {
-                    jooq.transactionResult { txn ->
-                        daoFactory.widgetDao(txn.dsl()).getWidget(id)
+                    jooq.txnWithDao(daoFactory::widgetDao) {
+                        it.getWidget(id)
                     }
                 }
 
@@ -54,31 +53,26 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
                 val id = call.parameters["id"]!!.toInt()
                 val name = call.parameters["name"]!!.toString()
 
-                val widget = withContext(Dispatchers.IO) {
-                    jooq.transactionResult { txn ->
-                        daoFactory.widgetDao(txn.dsl()).updateWidgetName(id, name)
-                    }
+                val widget = jooq.txnWithDao(daoFactory::widgetDao) {
+                    it.updateWidgetName(id, name)
                 }
 
                 call.respond(widget)
             }
 
             get("/widgets/all") {
-                val widgets = withContext(Dispatchers.IO) {
-                    jooq.transactionResult { txn ->
-                        daoFactory.widgetDao(txn.dsl()).getAllWidgets()
-                    }
+                val widgets = jooq.txnWithDao(daoFactory::widgetDao) {
+                    it.getAllWidgets()
                 }
+
                 call.respond(widgets)
             }
 
             post("/widgets") {
                 val req = call.receive<NewWidgetRequest>()
 
-                val result = withContext(Dispatchers.IO) {
-                    jooq.transactionResult { txn ->
-                        daoFactory.widgetDao(txn.dsl()).createWidget(req.name)
-                    }
+                val result = jooq.txnWithDao(daoFactory::widgetDao) {
+                    it.createWidget(req.name)
                 }
 
                 call.respond(result)
