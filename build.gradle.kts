@@ -66,7 +66,6 @@ dependencies {
 
     implementation("com.google.inject:guice:4.2.2")
 
-    implementation("org.skife.config:config-magic:0.17")
     implementation("commons-configuration:commons-configuration:1.10")
 
     implementation("com.zaxxer:HikariCP:3.4.1")

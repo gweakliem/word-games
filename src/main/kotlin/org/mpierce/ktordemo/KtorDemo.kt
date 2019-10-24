@@ -7,13 +7,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.inject.AbstractModule
 import com.google.inject.Guice
-import com.google.inject.Inject
 import com.google.inject.Injector
 import com.google.inject.Module
-import com.google.inject.Provides
-import com.google.inject.Singleton
 import com.google.inject.Stage
-import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
 import io.ktor.application.install
@@ -31,8 +27,6 @@ import org.jooq.SQLDialect
 import org.jooq.conf.Settings
 import org.jooq.impl.DSL
 import org.mpierce.guice.warmup.GuiceWarmup
-import org.skife.config.CommonsConfigSource
-import org.skife.config.ConfigurationObjectFactory
 import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
 import java.nio.charset.StandardCharsets
@@ -72,24 +66,12 @@ fun main(args: Array<String>) {
                 applyConfigFiles(args.getOrElse(0) { throw RuntimeException("Must provide config dir as a CLI arg") },
                         this)
             }
-            .let {
-                // and make an instance of KtorDemoConfig with data from the above
-                ConfigurationObjectFactory(CommonsConfigSource(it))
-                        .build(KtorDemoConfig::class.java)
-            }
+            .let { CommonsConfigKtorDemoConfig(it) }
 
     val logger = LoggerFactory.getLogger("org.mpierce.ktordemo")
 
     val jooq = initPool.submit(Callable<DSLContext> {
-        buildJooqDsl(buildDataSource(
-                config.dbIp(),
-                config.dbPort(),
-                "ktor-demo-dev",
-                config.dbUser(),
-                config.dbPassword(),
-                4,
-                1
-        ))
+        buildJooqDsl(buildDataSource(config.dataSourceConfig()))
     })
     initPool.shutdown()
 
@@ -141,22 +123,6 @@ fun configuredObjectMapper(): ObjectMapper {
         // Handle Java 8's new time types
         registerModule(JavaTimeModule())
     }
-}
-
-fun buildDataSource(ip: String, port: Int, dbName: String, user: String, pass: String,
-                    connPoolMaxSize: Int, connPoolMinIdle: Int): HikariDataSource {
-    val config = HikariConfig().apply {
-        jdbcUrl = "jdbc:postgresql://$ip:$port/$dbName"
-        username = user
-        password = pass
-        isAutoCommit = false
-        maximumPoolSize = connPoolMaxSize
-        minimumIdle = connPoolMinIdle
-        // per jdbc spec, driver uses tz from the host JVM. For local dev, this is lame, so we just always set UTC.
-        // This means that casting a timestamp to a date (for grouping, for instance) will use UTC.
-        connectionInitSql = "SET TIME ZONE 'UTC'"
-    }
-    return HikariDataSource(config)
 }
 
 fun buildJooqDsl(hikariDataSource: HikariDataSource): DSLContext {

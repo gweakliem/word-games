@@ -9,7 +9,6 @@ import io.ktor.application.Application
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.withTestApplication
 import org.jooq.DSLContext
-import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
@@ -20,8 +19,17 @@ import java.util.concurrent.atomic.AtomicReference
 
 
 class DbTestHelper : Closeable {
-    private val dataSource: HikariDataSource = buildDataSource("localhost", 25432, "ktor-demo-test", "ktor-demo-test",
-            "ktor-demo-test", 2, 1)
+    private val dataSource: HikariDataSource = buildDataSource(DataSourceConfig(
+            dataSourceClassName,
+            "ktor-demo-test",
+            "ktor-demo-test",
+            2,
+            1,
+            connInitSql,
+            mapOf("databaseName" to "ktor-demo-test",
+                    "portNumber" to "25432",
+                    "serverName" to "localhost")
+    ))
 
     val dslContext: DSLContext
 
