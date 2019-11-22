@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.50"
+    id("org.jetbrains.kotlin.jvm") version "1.3.60"
     id("application")
     id("org.flywaydb.flyway") version "6.0.7"
     id("nu.studer.jooq") version "3.0.3"
@@ -21,7 +21,7 @@ val deps by extra {
             "ktor" to "1.2.5",
             // also see version in buildscript
             "postgresql" to "42.2.8",
-            "jackson" to "2.10.0",
+            "jackson" to "2.10.1",
             "slf4j" to "1.7.28",
             "junit" to "5.5.2"
     )
@@ -60,8 +60,8 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${deps["jackson"]}")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${deps["jackson"]}")
 
-    runtime("ch.qos.logback:logback-classic:1.2.3")
-    runtime("org.slf4j:jcl-over-slf4j:${deps["slf4j"]}")
+    runtimeOnly("ch.qos.logback:logback-classic:1.2.3")
+    runtimeOnly("org.slf4j:jcl-over-slf4j:${deps["slf4j"]}")
     implementation("org.slf4j:jul-to-slf4j:${deps["slf4j"]}")
 
     implementation("com.google.inject:guice:4.2.2")
@@ -70,7 +70,7 @@ dependencies {
 
     implementation("com.zaxxer:HikariCP:3.4.1")
     implementation("org.jooq:jooq")
-    runtime("org.postgresql:postgresql:${deps["postgresql"]}")
+    runtimeOnly("org.postgresql:postgresql:${deps["postgresql"]}")
     jooqRuntime("org.postgresql:postgresql:${deps["postgresql"]}")
 
     implementation("org.mpierce.guice.warmup:guice-warmup:0.1")
