@@ -4,25 +4,25 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql:postgresql:42.2.8")
+        classpath("org.postgresql:postgresql:42.2.9")
     }
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.60"
+    id("org.jetbrains.kotlin.jvm") version "1.3.61"
     id("application")
-    id("org.flywaydb.flyway") version "6.0.7"
+    id("org.flywaydb.flyway") version "6.1.3"
     id("nu.studer.jooq") version "3.0.3"
     id("com.github.ben-manes.versions") version "0.27.0"
 }
 
 val deps by extra {
     mapOf(
-            "ktor" to "1.2.5",
+            "ktor" to "1.2.6",
             // also see version in buildscript
-            "postgresql" to "42.2.8",
+            "postgresql" to "42.2.9",
             "jackson" to "2.10.1",
-            "slf4j" to "1.7.28",
+            "slf4j" to "1.7.30",
             "junit" to "5.5.2"
     )
 }
@@ -39,10 +39,6 @@ apply(from = "jooq.gradle")
 
 application {
     mainClassName = "org.mpierce.ktordemo.KtorDemoKt"
-}
-// 'run' is a kotlin built-in function
-tasks.named<JavaExec>("run") {
-    args = listOf("local-dev-config")
 }
 
 repositories {
@@ -79,10 +75,6 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${deps["junit"]}")
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
-
 configurations.all {
     // don't let commons logging creep into the classpath; use jcl-over-slf4j instead
     exclude("commons-logging", "commons-logging")
@@ -95,6 +87,11 @@ flyway {
 }
 
 tasks {
+    // 'run' is a kotlin built-in function
+    (run) {
+        args = listOf("local-dev-config")
+    }
+
     val flywayCleanTest by registering(FlywayCleanTask::class) {
         url = testJdbcUrl
         user = testDbUser
@@ -114,6 +111,7 @@ tasks {
     }
 
     test {
+        useJUnitPlatform()
         dependsOn(flywayMigrateTest)
     }
 
