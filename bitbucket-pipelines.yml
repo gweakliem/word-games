@@ -7,6 +7,7 @@ pipelines:
           - docker
         caches:
           - gradle
+          - gradle-wrapper
           - docker
         script:
           - apk add --no-cache py-pip bash python-dev libffi-dev openssl-dev gcc libc-dev make
@@ -16,3 +17,7 @@ pipelines:
             && wget https://cdn.azul.com/zulu/bin/zulu11.31.11-ca-jdk11.0.3-linux_musl_x64.tar.gz -O - \
             | tar -xz -f - -C /usr/local/zulu
           - JAVA_HOME=/usr/local/zulu/zulu11.31.11-ca-jdk11.0.3-linux_musl_x64 ./gradlew check
+
+definitions:
+  caches:
+    gradle-wrapper: ~/.gradle/wrapper
