@@ -18,7 +18,7 @@ This project structure isn't about showing you how to write a web service in the
 - [Flyway](https://flywaydb.org/): DB migrations in plain SQL.
 - [jOOQ](https://www.jooq.org/): Type-safe SQL generated from your DB structure.
 - [HikariCP](https://github.com/brettwooldridge/HikariCP): A fast connection pool.
-- [Config-magic](https://github.com/brianm/config-magic/): There are many ways of mapping config data into type safe, accessible language constructs. This is one of them.
+- [Commons-configuration](http://commons.apache.org/proper/commons-configuration/): Combine configuration from multiple files, env vars, etc because it's nice to be able to simply override config values.
 - [Docker Compose](https://docs.docker.com/compose/): For easy local dev setup of Postgres.
 - [Docker](https://docs.docker.com/reference/): Because everyone wants Docker images, even though you may [wish to use caution](https://thehftguy.com/2016/11/01/docker-in-production-an-history-of-failure/).
 

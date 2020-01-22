@@ -32,7 +32,10 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
                 val id = call.parameters["id"]!!.toInt()
 
                 // for no particular reason, we'll run this query async style
+                // This uses Dispatchers.IO since JDBC still uses blocking I/O, and we don't want to block
+                // the thread(s) that run coroutines
                 val deferred = async(Dispatchers.IO) {
+                    // use a method reference for "the thing that makes the dao I want for this transaction"
                     jooq.txnWithDao(daoFactory::widgetDao) {
                         it.getWidget(id)
                     }
@@ -84,4 +87,4 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
 /**
  * Deserialized from POSTed JSON.
  */
-private data class NewWidgetRequest(@JsonProperty("name") val name: String)
+private class NewWidgetRequest(@JsonProperty("name") val name: String)
