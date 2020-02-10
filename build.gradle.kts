@@ -4,14 +4,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql:postgresql:42.2.9")
+        classpath("org.postgresql:postgresql:42.2.10")
     }
 }
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.61"
     id("application")
-    id("org.flywaydb.flyway") version "6.1.4"
+    id("org.flywaydb.flyway") version "6.2.2"
     id("nu.studer.jooq") version "4.1"
     id("com.github.ben-manes.versions") version "0.27.0"
     id("org.jmailen.kotlinter") version "2.3.0"
@@ -21,10 +21,10 @@ val deps by extra {
     mapOf(
             "ktor" to "1.3.0",
             // also see version in buildscript
-            "postgresql" to "42.2.9",
+            "postgresql" to "42.2.10",
             "jackson" to "2.10.2",
             "slf4j" to "1.7.30",
-            "junit" to "5.5.2"
+            "junit" to "5.6.0"
     )
 }
 
