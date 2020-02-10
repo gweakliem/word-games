@@ -1,8 +1,8 @@
 package org.mpierce.ktordemo
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.mpierce.ktordemo.jooq.tables.records.WidgetsRecord
 import java.time.Instant
+import org.mpierce.ktordemo.jooq.tables.records.WidgetsRecord
 
 /**
  * The way I've chosen to do it in this project is to have 2 implementations of the DAO: one backed by Postgres via
@@ -41,8 +41,10 @@ interface WidgetDao {
 /**
  * Since this is such a simple model, we'll let it be serialized directly.
  */
-data class Widget(@JsonProperty("id") val id: Int,
-                  @JsonProperty("name") val name: String,
-                  @JsonProperty("createdAt") val createdAt: Instant) {
+data class Widget(
+    @JsonProperty("id") val id: Int,
+    @JsonProperty("name") val name: String,
+    @JsonProperty("createdAt") val createdAt: Instant
+) {
     constructor(r: WidgetsRecord) : this(r.id, r.name, r.createdAt.toInstant())
 }

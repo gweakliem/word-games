@@ -30,5 +30,4 @@ class CommonsConfigKtorDemoConfig(private val config: Configuration) : KtorDemoC
     }
 
     override fun httpPort() = config.getInt("KTOR_DEMO_HTTP_PORT")
-
 }

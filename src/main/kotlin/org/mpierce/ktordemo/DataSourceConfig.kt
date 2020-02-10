@@ -5,13 +5,14 @@ import com.zaxxer.hikari.HikariDataSource
 import java.util.Properties
 
 class DataSourceConfig(
-        val dataSourceClassName: String,
-        val user: String,
-        val password: String,
-        val maxPoolSize: Int,
-        val minPoolIdle: Int,
-        val connInitSql: String,
-        val dataSourceProperties: Map<String, String>)
+    val dataSourceClassName: String,
+    val user: String,
+    val password: String,
+    val maxPoolSize: Int,
+    val minPoolIdle: Int,
+    val connInitSql: String,
+    val dataSourceProperties: Map<String, String>
+)
 
 /**
  * Build a HikariCP DataSource.
@@ -32,7 +33,6 @@ fun buildDataSource(dsConfig: DataSourceConfig): HikariDataSource {
         minimumIdle = dsConfig.minPoolIdle
         connectionInitSql = dsConfig.connInitSql
     }
-
 
     return HikariDataSource(hikariConfig)
 }

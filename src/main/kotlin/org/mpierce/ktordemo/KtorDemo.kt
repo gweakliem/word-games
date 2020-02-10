@@ -19,6 +19,13 @@ import io.ktor.jackson.JacksonConverter
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.extension
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 import org.apache.commons.configuration.CompositeConfiguration
 import org.apache.commons.configuration.EnvironmentConfiguration
 import org.apache.commons.configuration.PropertiesConfiguration
@@ -29,13 +36,6 @@ import org.jooq.impl.DSL
 import org.mpierce.guice.warmup.GuiceWarmup
 import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.time.Duration
-import java.time.Instant
-import java.util.concurrent.Callable
-import java.util.concurrent.Executors
 
 fun main(args: Array<String>) {
     val start = Instant.now()

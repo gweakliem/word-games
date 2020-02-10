@@ -8,15 +8,14 @@ import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.withTestApplication
+import java.io.Closeable
+import java.util.concurrent.atomic.AtomicReference
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.mpierce.ktordemo.jooq.Tables
-import java.io.Closeable
-import java.util.concurrent.atomic.AtomicReference
-
 
 class DbTestHelper : Closeable {
     private val dataSource: HikariDataSource = buildDataSource(DataSourceConfig(
