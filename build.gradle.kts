@@ -119,9 +119,9 @@ tasks {
     clean {
         dependsOn(flywayCleanTest)
     }
-}
 
-// compile to java 8 bytecode, not java 6
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    // compile to java 8 bytecode, not java 6
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
+    }
 }
