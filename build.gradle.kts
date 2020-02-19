@@ -11,15 +11,15 @@ buildscript {
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.61"
     id("application")
-    id("org.flywaydb.flyway") version "6.2.2"
+    id("org.flywaydb.flyway") version "6.2.3"
     id("nu.studer.jooq") version "4.1"
     id("com.github.ben-manes.versions") version "0.27.0"
-    id("org.jmailen.kotlinter") version "2.3.0"
+    id("org.jmailen.kotlinter") version "2.3.1"
 }
 
 val deps by extra {
     mapOf(
-            "ktor" to "1.3.0",
+            "ktor" to "1.3.1",
             // also see version in buildscript
             "postgresql" to "42.2.10",
             "jackson" to "2.10.2",
@@ -85,6 +85,7 @@ flyway {
     url = jdbcUrl
     user = dbUser
     password = dbPass
+    validateMigrationNaming = true
 }
 
 tasks {
