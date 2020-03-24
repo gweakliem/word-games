@@ -4,27 +4,27 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql:postgresql:42.2.10")
+        classpath("org.postgresql:postgresql:42.2.11")
     }
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.61"
+    id("org.jetbrains.kotlin.jvm") version "1.3.71"
     id("application")
-    id("org.flywaydb.flyway") version "6.2.3"
+    id("org.flywaydb.flyway") version "6.3.2"
     id("nu.studer.jooq") version "4.1"
-    id("com.github.ben-manes.versions") version "0.27.0"
-    id("org.jmailen.kotlinter") version "2.3.1"
+    id("com.github.ben-manes.versions") version "0.28.0"
+    id("org.jmailen.kotlinter") version "2.3.2"
 }
 
 val deps by extra {
     mapOf(
-            "ktor" to "1.3.1",
+            "ktor" to "1.3.2",
             // also see version in buildscript
-            "postgresql" to "42.2.10",
-            "jackson" to "2.10.2",
+            "postgresql" to "42.2.11",
+            "jackson" to "2.10.3",
             "slf4j" to "1.7.30",
-            "junit" to "5.6.0"
+            "junit" to "5.6.1"
     )
 }
 
@@ -61,7 +61,7 @@ dependencies {
     runtimeOnly("org.slf4j:jcl-over-slf4j:${deps["slf4j"]}")
     implementation("org.slf4j:jul-to-slf4j:${deps["slf4j"]}")
 
-    implementation("com.google.inject:guice:4.2.2")
+    implementation("com.google.inject:guice:4.2.3")
 
     implementation("commons-configuration:commons-configuration:1.10")
 
