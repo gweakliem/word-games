@@ -46,7 +46,7 @@ fun main(args: Array<String>) {
     // Help the service start up as fast as possible by initializing a few slow things in different
     // threads. If threading is too much complexity, just remove the thread pool and do things serially.
     val initPool = Executors.newCachedThreadPool()
-    val jackson = initPool.submit(Callable<ObjectMapper> {
+    val jackson = initPool.submit(Callable {
         configuredObjectMapper()
     })
 
@@ -170,9 +170,9 @@ class JooqModule(private val jooq: DSLContext) : AbstractModule() {
  */
 class GuiceConfigModule : AbstractModule() {
     override fun configure() {
-
         binder().requireAtInjectOnConstructors()
         binder().requireExactBindingAnnotations()
         binder().requireExplicitBindings()
+        binder().disableCircularProxies()
     }
 }
