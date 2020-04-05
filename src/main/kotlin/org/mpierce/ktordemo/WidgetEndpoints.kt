@@ -11,7 +11,6 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.put
 import io.ktor.routing.routing
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import org.jooq.DSLContext
 import org.slf4j.Logger
@@ -31,10 +30,8 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
                 // Could also use a typed location to avoid the string-typing https://ktor.io/samples/locations.html
                 val id = call.parameters["id"]!!.toInt()
 
-                // for no particular reason, we'll run this query async style
-                // This uses Dispatchers.IO since JDBC still uses blocking I/O, and we don't want to block
-                // the thread(s) that run coroutines
-                val deferred = async(Dispatchers.IO) {
+                // just to show we can, we'll run this query async style and get back a `Deferred<Widget>`
+                val deferred = async {
                     // use a method reference for "the thing that makes the dao I want for this transaction"
                     jooq.txnWithDao(daoFactory::widgetDao) {
                         it.getWidget(id)
@@ -42,7 +39,6 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
                 }
 
                 // sql request is in progress on the IO dispatcher
-
                 logger.debug("Loading widget $id")
 
                 // wait for the query to finish
@@ -56,6 +52,7 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
                 val id = call.parameters["id"]!!.toInt()
                 val name = call.parameters["name"]!!.toString()
 
+                // this time, no `async`, and thus the return type is `Widget`, not `Deferred<Widget>`
                 val widget = jooq.txnWithDao(daoFactory::widgetDao) {
                     it.updateWidgetName(id, name)
                 }
