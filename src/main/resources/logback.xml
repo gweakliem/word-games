@@ -11,6 +11,8 @@
 
   <logger name="org.skife.config" level="warn"/>
   <logger name="org.jooq.Constants" level="warn"/>
+  <logger name="io.netty" level="info"/>
+  <logger name="com.zaxxer" level="info"/>
 
   <root level="info">
     <appender-ref ref="STDOUT"/>

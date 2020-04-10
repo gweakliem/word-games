@@ -13,7 +13,9 @@ import com.google.inject.Stage
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
 import io.ktor.application.install
+import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.StatusPages
 import io.ktor.http.ContentType
 import io.ktor.jackson.JacksonConverter
 import io.ktor.server.engine.embeddedServer
@@ -26,6 +28,7 @@ import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
 import org.apache.commons.configuration.CompositeConfiguration
 import org.apache.commons.configuration.EnvironmentConfiguration
 import org.apache.commons.configuration.PropertiesConfiguration
@@ -36,57 +39,71 @@ import org.jooq.impl.DSL
 import org.mpierce.guice.warmup.GuiceWarmup
 import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
+import org.slf4j.event.Level
 
-fun main(args: Array<String>) {
-    val start = Instant.now()
-    // Use SLF4J for java.util.logging
-    SLF4JBridgeHandler.removeHandlersForRootLogger()
-    SLF4JBridgeHandler.install()
+object KtorDemo {
+    private val logger = LoggerFactory.getLogger(KtorDemo::class.java)
 
-    // Help the service start up as fast as possible by initializing a few slow things in different
-    // threads. If threading is too much complexity, just remove the thread pool and do things serially.
-    val initPool = Executors.newCachedThreadPool()
-    val jackson = initPool.submit(Callable {
-        configuredObjectMapper()
-    })
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val start = Instant.now()
+        // Use SLF4J for java.util.logging
+        SLF4JBridgeHandler.removeHandlersForRootLogger()
+        SLF4JBridgeHandler.install()
 
-    // This is totally optional but it helps the service start faster by having classes already loaded
-    // by the time they're needed.
-    val otherWarmupFutures = listOf(
+        // Help the service start up as fast as possible by initializing a few slow things in different
+        // threads. If threading is too much complexity, just remove the thread pool and do things serially.
+        // Daemon threads are used so they won't keep the JVM up if the main thread dies from a startup error.
+        val initPool = Executors.newCachedThreadPool(DaemonThreadFactory())
+        val jackson = initPool.submit(Callable {
+            configuredObjectMapper()
+        })
+
+        // This is totally optional but it helps the service start faster by having classes already loaded
+        // by the time they're needed.
+        val otherWarmupFutures = listOf(
             initPool.submit { GuiceWarmup.warmUp() }
-    )
+        )
 
-    // Here, we use commons-configuration's CompositeConfiguration and config-magic to let us combine different config
-    // sources.
-    val config = CompositeConfiguration()
+        // Here, we use commons-configuration's CompositeConfiguration and config-magic to let us combine different config
+        // sources.
+        val config = CompositeConfiguration()
             .apply {
                 // first, look in environment vars
                 addConfiguration(EnvironmentConfiguration())
                 // then, apply any config files found in the config directory
                 applyConfigFiles(args.getOrElse(0) { throw RuntimeException("Must provide config dir as a CLI arg") },
-                        this)
+                    this)
             }
             .let { CommonsConfigKtorDemoConfig(it) }
 
-    val logger = LoggerFactory.getLogger("org.mpierce.ktordemo")
+        val jooq = initPool.submit(Callable {
+            buildJooqDsl(buildDataSource(config.dataSourceConfig()))
+        })
+        initPool.shutdown()
 
-    val jooq = initPool.submit(Callable<DSLContext> {
-        buildJooqDsl(buildDataSource(config.dataSourceConfig()))
-    })
-    initPool.shutdown()
+        val server = embeddedServer(Netty, port = config.httpPort()) {
+            // add some built-in ktor features
+            install(StatusPages) {
+                // log when handling a request ends up throwing
+                exception<Throwable> { cause -> logger.warn("Unhandled exception", cause) }
+            }
+            install(CallLogging) {
+                // produce some request logs
+                level = Level.INFO
+            }
 
-    val server = embeddedServer(Netty, port = config.httpPort()) {
-        // any other ktor features would be set up here
-        configureJackson(this, jackson.get())
-        setupGuice(
+            configureJackson(this, jackson.get())
+            setupGuice(
                 this,
                 JooqModule(jooq.get()),
                 DaoFactoryModule(SqlDaoFactory())
-        )
-        otherWarmupFutures.forEach { it.get() }
-        logger.info("Server initialized in ${Duration.between(start, Instant.now())}")
+            )
+            otherWarmupFutures.forEach { it.get() }
+            logger.info("Server initialized in ${Duration.between(start, Instant.now())}")
+        }
+        server.start(wait = true)
     }
-    server.start(wait = true)
 }
 
 fun setupGuice(app: Application, vararg modules: Module): Injector {
@@ -174,5 +191,16 @@ class GuiceConfigModule : AbstractModule() {
         binder().requireExactBindingAnnotations()
         binder().requireExplicitBindings()
         binder().disableCircularProxies()
+    }
+}
+
+/**
+ * Makes threads the normal way, except that they're marked as daemon threads so they won't keep the JVM alive.
+ */
+class DaemonThreadFactory : ThreadFactory {
+    private val delegate = Executors.defaultThreadFactory()
+
+    override fun newThread(r: Runnable): Thread {
+        return delegate.newThread(r).apply { isDaemon = true }
     }
 }

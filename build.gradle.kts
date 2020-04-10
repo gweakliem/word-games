@@ -39,7 +39,7 @@ val testJdbcUrl by extra { "jdbc:postgresql://localhost:25432/$testDbName" }
 apply(from = "jooq.gradle")
 
 application {
-    mainClassName = "org.mpierce.ktordemo.KtorDemoKt"
+    mainClassName = "org.mpierce.ktordemo.KtorDemo"
 }
 
 repositories {

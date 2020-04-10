@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   postgresql:
-    image: postgres:9.6
+    image: postgres:11.7
     environment:
       POSTGRES_USER: 'ktor-demo-dev'
       POSTGRES_PASSWORD: 'ktor-demo-dev'

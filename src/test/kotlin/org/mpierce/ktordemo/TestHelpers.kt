@@ -74,6 +74,7 @@ fun fakeJooqDsl(): DSLContext {
  * A helper to allow you to run tests while also having access to the injector used when initializing the app
  */
 fun <R> withInMemoryTestApp(testBlock: TestApplicationEngine.(Injector) -> R) {
+    // keep track of the injector created during app setup
     val injectorRef = AtomicReference<Injector>()
     val appInit: Application.() -> Unit = {
         injectorRef.set(setUpAppWithInMemoryPersistence(this))
@@ -81,7 +82,7 @@ fun <R> withInMemoryTestApp(testBlock: TestApplicationEngine.(Injector) -> R) {
 
     withTestApplication(appInit) {
         val injector = injectorRef.get()!!
-
+        // ... so that we can then provide that injector to the test block
         testBlock(injector)
     }
 }

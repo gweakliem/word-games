@@ -1,14 +1,7 @@
-FROM ubuntu:18.10
+FROM azul/zulu-openjdk-alpine:11.0.6
 
-RUN apt-get update && apt-get install -y software-properties-common
-
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x219BD9C9 \
-    && apt-add-repository 'deb http://repos.azulsystems.com/ubuntu stable main'
-
-RUN apt-get update && apt-get -y install \
-    zulu-11
-
-CMD ["sh", "/deploy/ktor-demo/bin/ktor-demo"]
+# figure out how you want to manage config files, etc, and call the service appropriately
+CMD ["sh", "/deploy/ktor-demo/bin/ktor-demo", "config-dir-goes-here"]
 EXPOSE 9080
 
 RUN mkdir /deploy
