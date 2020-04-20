@@ -1,11 +1,15 @@
 package org.mpierce.ktordemo
 
 import com.natpryce.konfig.Configuration
+import com.natpryce.konfig.ConfigurationProperties
+import com.natpryce.konfig.EmptyConfiguration
 import com.natpryce.konfig.Key
 import com.natpryce.konfig.booleanType
 import com.natpryce.konfig.intType
 import com.natpryce.konfig.stringType
 import com.zaxxer.hikari.HikariConfig
+import java.nio.file.Files
+import java.nio.file.Path
 
 /**
  * Using an interface for config makes it easier to construct instances off of test config if needed.
@@ -54,4 +58,22 @@ fun buildHikariConfig(config: Configuration, prefix: String): HikariConfig {
         addDataSourceProperty("portNumber", config[Key("${prefix}_PORT", stringType)])
         addDataSourceProperty("databaseName", config[Key("${prefix}_DATABASE", stringType)])
     }
+}
+
+/**
+ * Load properties files in the provided directory in lexically sorted order.
+ *
+ * Later files overwrite previous files. In other words, data in 02-bar.properties will take precedence over
+ * 01-foo.properties.
+ */
+fun ConfigurationProperties.Companion.fromDirectory(configDir: Path): Configuration {
+    return Files.newDirectoryStream(configDir)
+        .filter { p -> p.fileName.toString().endsWith("properties") }
+        .asSequence()
+        .sorted()
+        // TODO explicitly use UTF-8 once https://github.com/npryce/konfig/pull/46 lands
+        .map { p -> fromFile(p.toFile()) }
+        .fold(EmptyConfiguration as Configuration) { acc, config ->
+            com.natpryce.konfig.Override(config, acc)
+        }
 }

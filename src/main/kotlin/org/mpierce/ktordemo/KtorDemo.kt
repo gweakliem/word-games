@@ -10,9 +10,7 @@ import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Module
 import com.google.inject.Stage
-import com.natpryce.konfig.Configuration
 import com.natpryce.konfig.ConfigurationProperties
-import com.natpryce.konfig.EmptyConfiguration
 import com.natpryce.konfig.EnvironmentVariables
 import com.natpryce.konfig.overriding
 import com.zaxxer.hikari.HikariDataSource
@@ -33,7 +31,6 @@ import org.mpierce.guice.warmup.GuiceWarmup
 import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
 import org.slf4j.event.Level
-import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
@@ -143,24 +140,6 @@ fun buildJooqDsl(hikariDataSource: HikariDataSource): DSLContext {
                     // we're using Postgres, so we can use INSERT ... RETURNING to get db-created column values on new
                     // rows without a separate query
                     .withReturnAllOnUpdatableRecord(true))
-}
-
-/**
- * Apply properties files in the provided directory to the compsite configuration in sorted order.
- *
- * Later files overwrite previous files. In other words, data in 02-bar.properties will take precedence over
- * 01-foo.properties.
- */
-fun ConfigurationProperties.Companion.fromDirectory(configDir: Path): Configuration {
-    return Files.newDirectoryStream(configDir)
-        .filter { p -> p.fileName.toString().endsWith("properties") }
-        .asSequence()
-        .sorted()
-        // TODO explicitly use UTF-8 once https://github.com/npryce/konfig/pull/46 lands
-        .map { p -> fromFile(p.toFile()) }
-        .fold(EmptyConfiguration as Configuration) { acc, config ->
-            com.natpryce.konfig.Override(config, acc)
-        }
 }
 
 class JooqModule(private val jooq: DSLContext) : AbstractModule() {
