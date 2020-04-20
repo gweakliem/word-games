@@ -25,13 +25,6 @@ import io.ktor.http.ContentType
 import io.ktor.jackson.JacksonConverter
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import java.nio.file.Files
-import java.nio.file.Path
-import java.time.Duration
-import java.time.Instant
-import java.util.concurrent.Callable
-import java.util.concurrent.Executors
-import java.util.concurrent.ThreadFactory
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.conf.Settings
@@ -40,6 +33,13 @@ import org.mpierce.guice.warmup.GuiceWarmup
 import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
 import org.slf4j.event.Level
+import java.nio.file.Files
+import java.nio.file.Path
+import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
 
 object KtorDemo {
     private val logger = LoggerFactory.getLogger(KtorDemo::class.java)
@@ -67,10 +67,9 @@ object KtorDemo {
 
         // Here, we use commons-configuration's CompositeConfiguration and config-magic to let us combine different config
         // sources.
+        val configPath = args.getOrElse(0) { throw RuntimeException("Must provide config dir as a CLI arg") }
         val config = EnvironmentVariables() overriding
-            args.getOrElse(0) { throw RuntimeException("Must provide config dir as a CLI arg") }
-                .let { str -> Path.of(str) }
-                .let(::loadPropertiesDirConfig)
+            ConfigurationProperties.fromDirectory(Path.of(configPath))
 
         val jooq = initPool.submit(Callable {
             buildJooqDsl(buildHikariConfig(config, "KTOR_DEMO_DB").let(::HikariDataSource))
@@ -152,15 +151,13 @@ fun buildJooqDsl(hikariDataSource: HikariDataSource): DSLContext {
  * Later files overwrite previous files. In other words, data in 02-bar.properties will take precedence over
  * 01-foo.properties.
  */
-fun loadPropertiesDirConfig(configDir: Path): Configuration {
+fun ConfigurationProperties.Companion.fromDirectory(configDir: Path): Configuration {
     return Files.newDirectoryStream(configDir)
         .filter { p -> p.fileName.toString().endsWith("properties") }
         .asSequence()
         .sorted()
-        .map { p ->
-            // TODO explicitly use UTF-8 once https://github.com/npryce/konfig/pull/46 lands
-            ConfigurationProperties.fromFile(p.toFile())
-        }
+        // TODO explicitly use UTF-8 once https://github.com/npryce/konfig/pull/46 lands
+        .map { p -> fromFile(p.toFile()) }
         .fold(EmptyConfiguration as Configuration) { acc, config ->
             com.natpryce.konfig.Override(config, acc)
         }
