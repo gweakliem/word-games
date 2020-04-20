@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.ObjectReader
 import com.google.inject.Injector
+import com.natpryce.konfig.ConfigurationMap
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
 import io.ktor.server.testing.TestApplicationEngine
@@ -18,17 +19,20 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.mpierce.ktordemo.jooq.Tables
 
 class DbTestHelper : Closeable {
-    private val dataSource: HikariDataSource = buildDataSource(DataSourceConfig(
-            dataSourceClassName,
-            "ktor-demo-test",
-            "ktor-demo-test",
-            2,
-            1,
-            connInitSql,
-            mapOf("databaseName" to "ktor-demo-test",
-                    "portNumber" to "25432",
-                    "serverName" to "localhost")
-    ))
+    private val dataSource: HikariDataSource = buildHikariConfig(
+        ConfigurationMap(
+            "KTOR_DEMO_DB_HOST" to "127.0.0.1",
+            "KTOR_DEMO_DB_PORT" to "25432",
+            "KTOR_DEMO_DB_DATABASE" to "ktor-demo-test",
+            "KTOR_DEMO_DB_DATA_SOURCE_CLASS" to "org.postgresql.ds.PGSimpleDataSource",
+            "KTOR_DEMO_DB_USER" to "ktor-demo-test",
+            "KTOR_DEMO_DB_PASSWORD" to "ktor-demo-test",
+            "KTOR_DEMO_DB_MAX_POOL_SIZE" to "4",
+            "KTOR_DEMO_DB_CONN_INIT_SQL" to "SET TIME ZONE 'UTC'",
+            "KTOR_DEMO_DB_AUTO_COMMIT" to "false"
+        ),
+        "KTOR_DEMO_DB"
+    ).let(::HikariDataSource)
 
     val dslContext: DSLContext
 
