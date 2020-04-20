@@ -72,7 +72,7 @@ object KtorDemo {
             ConfigurationProperties.fromDirectory(Path.of(configPath))
 
         val jooq = initPool.submit(Callable {
-            buildJooqDsl(buildHikariConfig(config, "KTOR_DEMO_DB").let(::HikariDataSource))
+            buildJooqDsl(HikariDataSource(buildHikariConfig(config, "KTOR_DEMO_DB")))
         })
         initPool.shutdown()
 
