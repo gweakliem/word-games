@@ -23,6 +23,12 @@ import io.ktor.http.ContentType
 import io.ktor.jackson.JacksonConverter
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import java.nio.file.Path
+import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.conf.Settings
@@ -31,12 +37,6 @@ import org.mpierce.guice.warmup.GuiceWarmup
 import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
 import org.slf4j.event.Level
-import java.nio.file.Path
-import java.time.Duration
-import java.time.Instant
-import java.util.concurrent.Callable
-import java.util.concurrent.Executors
-import java.util.concurrent.ThreadFactory
 
 object KtorDemo {
     private val logger = LoggerFactory.getLogger(KtorDemo::class.java)
@@ -64,7 +64,7 @@ object KtorDemo {
 
         // Here, we use commons-configuration's CompositeConfiguration and config-magic to let us combine different config
         // sources.
-        val configPath = args.getOrElse(0) { throw RuntimeException("Must provide config dir as a CLI arg") }
+        val configPath = args.getOrNull(0) ?: throw RuntimeException("Must provide config dir as a CLI arg")
         val config = EnvironmentVariables() overriding
             ConfigurationProperties.fromDirectory(Path.of(configPath))
 
