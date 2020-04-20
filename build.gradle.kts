@@ -4,12 +4,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql:postgresql:42.2.11")
+        classpath("org.postgresql:postgresql:42.2.12")
     }
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.71"
+    id("org.jetbrains.kotlin.jvm") version "1.3.72"
     id("application")
     id("org.flywaydb.flyway") version "6.3.2"
     id("nu.studer.jooq") version "4.1"
@@ -21,7 +21,7 @@ val deps by extra {
     mapOf(
             "ktor" to "1.3.2",
             // also see version in buildscript
-            "postgresql" to "42.2.11",
+            "postgresql" to "42.2.12",
             "jackson" to "2.10.3",
             "slf4j" to "1.7.30",
             "junit" to "5.6.1"
@@ -48,7 +48,6 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("io.ktor:ktor-server-core:${deps["ktor"]}")
     implementation("io.ktor:ktor-server-netty:${deps["ktor"]}")
     implementation("io.ktor:ktor-jackson:${deps["ktor"]}")
     testImplementation("io.ktor:ktor-server-test-host:${deps["ktor"]}")
@@ -63,7 +62,7 @@ dependencies {
 
     implementation("com.google.inject:guice:4.2.3")
 
-    implementation("commons-configuration:commons-configuration:1.10")
+    implementation("com.natpryce", "konfig", "1.6.10.0")
 
     implementation("com.zaxxer:HikariCP:3.4.2")
     implementation("org.jooq:jooq")

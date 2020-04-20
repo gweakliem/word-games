@@ -10,6 +10,11 @@ import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Module
 import com.google.inject.Stage
+import com.natpryce.konfig.Configuration
+import com.natpryce.konfig.ConfigurationProperties
+import com.natpryce.konfig.EmptyConfiguration
+import com.natpryce.konfig.EnvironmentVariables
+import com.natpryce.konfig.overriding
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
 import io.ktor.application.install
@@ -20,18 +25,13 @@ import io.ktor.http.ContentType
 import io.ktor.jackson.JacksonConverter
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.ktor.util.extension
-import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import java.nio.file.Paths
+import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
-import org.apache.commons.configuration.CompositeConfiguration
-import org.apache.commons.configuration.EnvironmentConfiguration
-import org.apache.commons.configuration.PropertiesConfiguration
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.conf.Settings
@@ -67,22 +67,17 @@ object KtorDemo {
 
         // Here, we use commons-configuration's CompositeConfiguration and config-magic to let us combine different config
         // sources.
-        val config = CompositeConfiguration()
-            .apply {
-                // first, look in environment vars
-                addConfiguration(EnvironmentConfiguration())
-                // then, apply any config files found in the config directory
-                applyConfigFiles(args.getOrElse(0) { throw RuntimeException("Must provide config dir as a CLI arg") },
-                    this)
-            }
-            .let { CommonsConfigKtorDemoConfig(it) }
+        val config = EnvironmentVariables() overriding
+            args.getOrElse(0) { throw RuntimeException("Must provide config dir as a CLI arg") }
+                .let { str -> Path.of(str) }
+                .let(::loadPropertiesDirConfig)
 
         val jooq = initPool.submit(Callable {
-            buildJooqDsl(buildDataSource(config.dataSourceConfig()))
+            buildJooqDsl(buildHikariConfig(config, "KTOR_DEMO_DB").let(::HikariDataSource))
         })
         initPool.shutdown()
 
-        val server = embeddedServer(Netty, port = config.httpPort()) {
+        val server = embeddedServer(Netty, port = KonfigHttpServerConfig(config).httpPort) {
             // add some built-in ktor features
             install(StatusPages) {
                 // log when handling a request ends up throwing
@@ -157,23 +152,18 @@ fun buildJooqDsl(hikariDataSource: HikariDataSource): DSLContext {
  * Later files overwrite previous files. In other words, data in 02-bar.properties will take precedence over
  * 01-foo.properties.
  */
-fun applyConfigFiles(configDir: String, composite: CompositeConfiguration) {
-    Files.newDirectoryStream(Paths.get(configDir))
-            .filter { p -> p.extension == "properties" }
-            .toList()
-            .sorted()
-            // CompositeConfiguration uses "first match wins" but we want the opposite
-            .reversed()
-            .forEach { p ->
-                val props = PropertiesConfiguration().apply {
-                    encoding = StandardCharsets.UTF_8.name()
-                    isDelimiterParsingDisabled = true
-                }
-                Files.newInputStream(p).use { i ->
-                    props.load(i)
-                }
-                composite.addConfiguration(props)
-            }
+fun loadPropertiesDirConfig(configDir: Path): Configuration {
+    return Files.newDirectoryStream(configDir)
+        .filter { p -> p.fileName.toString().endsWith("properties") }
+        .asSequence()
+        .sorted()
+        .map { p ->
+            // TODO explicitly use UTF-8 once https://github.com/npryce/konfig/pull/46 lands
+            ConfigurationProperties.fromFile(p.toFile())
+        }
+        .fold(EmptyConfiguration as Configuration) { acc, config ->
+            com.natpryce.konfig.Override(config, acc)
+        }
 }
 
 class JooqModule(private val jooq: DSLContext) : AbstractModule() {
