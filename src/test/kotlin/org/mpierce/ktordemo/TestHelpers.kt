@@ -31,7 +31,7 @@ class DbTestHelper : Closeable {
             "KTOR_DEMO_DB_CONN_INIT_SQL" to "SET TIME ZONE 'UTC'",
             "KTOR_DEMO_DB_AUTO_COMMIT" to "false"
         ),
-        "KTOR_DEMO_DB"
+        "KTOR_DEMO_DB_"
     ).let(::HikariDataSource)
 
     val dslContext: DSLContext

@@ -11,8 +11,8 @@ buildscript {
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.72"
     id("application")
-    id("org.flywaydb.flyway") version "6.3.2"
-    id("nu.studer.jooq") version "4.1"
+    id("org.flywaydb.flyway") version "6.4.2"
+    id("nu.studer.jooq") version "4.2"
     id("com.github.ben-manes.versions") version "0.28.0"
     id("org.jmailen.kotlinter") version "2.3.2"
 }
@@ -22,9 +22,9 @@ val deps by extra {
             "ktor" to "1.3.2",
             // also see version in buildscript
             "postgresql" to "42.2.12",
-            "jackson" to "2.10.3",
+            "jackson" to "2.11.0",
             "slf4j" to "1.7.30",
-            "junit" to "5.6.1"
+            "junit" to "5.6.2"
     )
 }
 
@@ -64,7 +64,7 @@ dependencies {
 
     implementation("com.natpryce", "konfig", "1.6.10.0")
 
-    implementation("com.zaxxer:HikariCP:3.4.2")
+    implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("org.jooq:jooq")
     runtimeOnly("org.postgresql:postgresql:${deps["postgresql"]}")
     jooqRuntime("org.postgresql:postgresql:${deps["postgresql"]}")

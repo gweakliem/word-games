@@ -37,7 +37,7 @@ class KonfigHttpServerConfig(config: Configuration) : HttpServerConfig {
  * - `CONN_INIT_SQL` - SQL to run for each new connection created. A good place to set the timezone, e.g. `SET TIME ZONE 'UTC'` for Postgres.
  * - `AUTO_COMMIT` - should be false, but may have to be set to true for legacy apps that don't manage transactions properly.
  *
- * The provided `prefix` will be stitched together with the above property names with a `_`, so prefix = "PRIMARY_DB" would lead to the property `PRIMARY_DB_HOST` being used for the hostname to connect to.
+ * The provided `prefix` will be stitched together with the above property names, so prefix = "PRIMARY_DB_" would lead to the property `PRIMARY_DB_HOST` being used for the hostname to connect to.
  *
  * The returned `HikariConfig` can be further configured if need be (e.g. adding additional datasource properties); the
  * things set here are simply the ones that all applications should set at a minimum.
@@ -45,18 +45,18 @@ class KonfigHttpServerConfig(config: Configuration) : HttpServerConfig {
 fun buildHikariConfig(config: Configuration, prefix: String): HikariConfig {
     return HikariConfig().apply {
         // shared config for all drivers
-        dataSourceClassName = config[Key("${prefix}_DATA_SOURCE_CLASS", stringType)]
-        username = config[Key("${prefix}_USER", stringType)]
-        password = config[Key("${prefix}_PASSWORD", stringType)]
-        maximumPoolSize = config[Key("${prefix}_MAX_POOL_SIZE", intType)]
-        connectionInitSql = config[Key("${prefix}_CONN_INIT_SQL", stringType)]
-        isAutoCommit = config[Key("${prefix}_AUTO_COMMIT", booleanType)]
+        dataSourceClassName = config[Key("${prefix}DATA_SOURCE_CLASS", stringType)]
+        username = config[Key("${prefix}USER", stringType)]
+        password = config[Key("${prefix}PASSWORD", stringType)]
+        maximumPoolSize = config[Key("${prefix}MAX_POOL_SIZE", intType)]
+        connectionInitSql = config[Key("${prefix}CONN_INIT_SQL", stringType)]
+        isAutoCommit = config[Key("${prefix}AUTO_COMMIT", booleanType)]
 
         // pg-specific config. If you're using another driver, you will probably need to set these in a different way,
         // perhaps by stitching together a JDBC url with just these things.
-        addDataSourceProperty("serverName", config[Key("${prefix}_HOST", stringType)])
-        addDataSourceProperty("portNumber", config[Key("${prefix}_PORT", stringType)])
-        addDataSourceProperty("databaseName", config[Key("${prefix}_DATABASE", stringType)])
+        addDataSourceProperty("serverName", config[Key("${prefix}HOST", stringType)])
+        addDataSourceProperty("portNumber", config[Key("${prefix}PORT", stringType)])
+        addDataSourceProperty("databaseName", config[Key("${prefix}DATABASE", stringType)])
     }
 }
 

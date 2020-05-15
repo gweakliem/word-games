@@ -26,9 +26,8 @@ import io.ktor.server.netty.Netty
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.Callable
-import java.util.concurrent.Executors
-import java.util.concurrent.ThreadFactory
+import java.util.concurrent.Future
+import java.util.concurrent.FutureTask
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.conf.Settings
@@ -49,17 +48,13 @@ object KtorDemo {
         SLF4JBridgeHandler.install()
 
         // Help the service start up as fast as possible by initializing a few slow things in different
-        // threads. If threading is too much complexity, just remove the thread pool and do things serially.
-        // Daemon threads are used so they won't keep the JVM up if the main thread dies from a startup error.
-        val initPool = Executors.newCachedThreadPool(DaemonThreadFactory())
-        val jackson = initPool.submit(Callable {
-            configuredObjectMapper()
-        })
+        // threads. If threading is too much complexity, just remove the threads and do things serially.
+        val jackson = onDedicatedThread { configuredObjectMapper() }
 
         // This is totally optional but it helps the service start faster by having classes already loaded
         // by the time they're needed.
-        val otherWarmupFutures = listOf(
-            initPool.submit { GuiceWarmup.warmUp() }
+        val otherWarmupFutures: List<Future<*>> = listOf(
+            onDedicatedThread { GuiceWarmup.warmUp() }
         )
 
         // Here, we use commons-configuration's CompositeConfiguration and config-magic to let us combine different config
@@ -68,10 +63,7 @@ object KtorDemo {
         val config = EnvironmentVariables() overriding
             ConfigurationProperties.fromDirectory(Path.of(configPath))
 
-        val jooq = initPool.submit(Callable {
-            buildJooqDsl(HikariDataSource(buildHikariConfig(config, "KTOR_DEMO_DB")))
-        })
-        initPool.shutdown()
+        val jooq = onDedicatedThread { buildJooqDsl(HikariDataSource(buildHikariConfig(config, "KTOR_DEMO_DB_"))) }
 
         val server = embeddedServer(Netty, port = KonfigHttpServerConfig(config).httpPort) {
             // add some built-in ktor features
@@ -161,12 +153,6 @@ class GuiceConfigModule : AbstractModule() {
 }
 
 /**
- * Makes threads the normal way, except that they're marked as daemon threads so they won't keep the JVM alive.
+ * Start running builder on a dedicated thread, and return it as a Future.
  */
-class DaemonThreadFactory : ThreadFactory {
-    private val delegate = Executors.defaultThreadFactory()
-
-    override fun newThread(r: Runnable): Thread {
-        return delegate.newThread(r).apply { isDaemon = true }
-    }
-}
+fun <T> onDedicatedThread(builder: () -> T): Future<T> = FutureTask { builder() }.also { Thread(it).start() }
