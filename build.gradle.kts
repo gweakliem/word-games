@@ -4,14 +4,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql:postgresql:42.2.12")
+        classpath("org.postgresql", "postgresql", "42.2.13")
     }
 }
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.72"
     id("application")
-    id("org.flywaydb.flyway") version "6.4.2"
+    id("org.flywaydb.flyway") version "6.4.3"
     id("nu.studer.jooq") version "4.2"
     id("com.github.ben-manes.versions") version "0.28.0"
     id("org.jmailen.kotlinter") version "2.3.2"
@@ -19,12 +19,12 @@ plugins {
 
 val deps by extra {
     mapOf(
-            "ktor" to "1.3.2",
-            // also see version in buildscript
-            "postgresql" to "42.2.12",
-            "jackson" to "2.11.0",
-            "slf4j" to "1.7.30",
-            "junit" to "5.6.2"
+        "jackson" to "2.11.0",
+        "junit" to "5.6.2",
+        "ktor" to "1.3.2",
+        // also see version in buildscript
+        "postgresql" to "42.2.13",
+        "slf4j" to "1.7.30"
     )
 }
 
@@ -47,32 +47,33 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("io.ktor:ktor-server-netty:${deps["ktor"]}")
-    implementation("io.ktor:ktor-jackson:${deps["ktor"]}")
-    testImplementation("io.ktor:ktor-server-test-host:${deps["ktor"]}")
+    implementation("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+    implementation("io.ktor", "ktor-server-netty", "${deps["ktor"]}")
+    implementation("io.ktor", "ktor-jackson", "${deps["ktor"]}")
+    testImplementation("io.ktor", "ktor-server-test-host", "${deps["ktor"]}")
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:${deps["jackson"]}")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${deps["jackson"]}")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${deps["jackson"]}")
+    implementation("com.fasterxml.jackson.core", "jackson-databind", "${deps["jackson"]}")
+    implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", "${deps["jackson"]}")
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "${deps["jackson"]}")
 
-    runtimeOnly("ch.qos.logback:logback-classic:1.2.3")
-    runtimeOnly("org.slf4j:jcl-over-slf4j:${deps["slf4j"]}")
-    implementation("org.slf4j:jul-to-slf4j:${deps["slf4j"]}")
+    runtimeOnly("ch.qos.logback", "logback-classic", "1.2.3")
+    runtimeOnly("org.slf4j", "jcl-over-slf4j", "${deps["slf4j"]}")
+    implementation("org.slf4j", "jul-to-slf4j", "${deps["slf4j"]}")
 
-    implementation("com.google.inject:guice:4.2.3")
+    implementation("com.google.inject", "guice", "4.2.3")
 
     implementation("com.natpryce", "konfig", "1.6.10.0")
 
-    implementation("com.zaxxer:HikariCP:3.4.5")
-    implementation("org.jooq:jooq")
-    runtimeOnly("org.postgresql:postgresql:${deps["postgresql"]}")
-    jooqRuntime("org.postgresql:postgresql:${deps["postgresql"]}")
+    implementation("com.zaxxer", "HikariCP", "3.4.5")
+    implementation("org.jooq", "jooq")
+    runtimeOnly("org.postgresql", "postgresql", "${deps["postgresql"]}")
+    jooqRuntime("org.postgresql", "postgresql", "${deps["postgresql"]}")
+    jooqRuntime("org.slf4j", "slf4j-simple", deps["slf4j"])
 
-    implementation("org.mpierce.guice.warmup:guice-warmup:0.1")
+    implementation("org.mpierce.guice.warmup", "guice-warmup", "0.1")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${deps["junit"]}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${deps["junit"]}")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "${deps["junit"]}")
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "${deps["junit"]}")
 }
 
 configurations.all {
