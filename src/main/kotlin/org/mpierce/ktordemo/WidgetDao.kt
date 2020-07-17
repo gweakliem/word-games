@@ -1,8 +1,8 @@
 package org.mpierce.ktordemo
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.time.Instant
 import org.mpierce.ktordemo.jooq.tables.records.WidgetsRecord
+import java.time.Instant
 
 /**
  * The way I've chosen to do it in this project is to have 2 implementations of the DAO: one backed by Postgres via

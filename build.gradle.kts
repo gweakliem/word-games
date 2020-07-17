@@ -4,17 +4,17 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql", "postgresql", "42.2.13")
+        classpath("org.postgresql", "postgresql", "42.2.14")
     }
 }
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.72"
     id("application")
-    id("org.flywaydb.flyway") version "6.4.3"
+    id("org.flywaydb.flyway") version "6.5.1"
     id("nu.studer.jooq") version "4.2"
     id("com.github.ben-manes.versions") version "0.28.0"
-    id("org.jmailen.kotlinter") version "2.3.2"
+    id("org.jmailen.kotlinter") version "2.4.1"
 }
 
 val deps by extra {
@@ -23,7 +23,7 @@ val deps by extra {
         "junit" to "5.6.2",
         "ktor" to "1.3.2",
         // also see version in buildscript
-        "postgresql" to "42.2.13",
+        "postgresql" to "42.2.14",
         "slf4j" to "1.7.30"
     )
 }
@@ -47,7 +47,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+    implementation(kotlin("stdlib-jdk8"))
     implementation("io.ktor", "ktor-server-netty", "${deps["ktor"]}")
     implementation("io.ktor", "ktor-jackson", "${deps["ktor"]}")
     testImplementation("io.ktor", "ktor-server-test-host", "${deps["ktor"]}")
@@ -55,6 +55,9 @@ dependencies {
     implementation("com.fasterxml.jackson.core", "jackson-databind", "${deps["jackson"]}")
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", "${deps["jackson"]}")
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "${deps["jackson"]}")
+    // jackson-module-kotlin may at times be pulling in an old version of kotlin-reflect, so specify it manually
+    // to make sure the version matches the kotlin stdlib
+    implementation(kotlin("reflect"))
 
     runtimeOnly("ch.qos.logback", "logback-classic", "1.2.3")
     runtimeOnly("org.slf4j", "jcl-over-slf4j", "${deps["slf4j"]}")

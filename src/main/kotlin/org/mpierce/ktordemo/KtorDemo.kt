@@ -23,11 +23,6 @@ import io.ktor.http.ContentType
 import io.ktor.jackson.JacksonConverter
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import java.nio.file.Path
-import java.time.Duration
-import java.time.Instant
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Future
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.conf.Settings
@@ -36,6 +31,11 @@ import org.mpierce.guice.warmup.GuiceWarmup
 import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
 import org.slf4j.event.Level
+import java.nio.file.Path
+import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 
 object KtorDemo {
     private val logger = LoggerFactory.getLogger(KtorDemo::class.java)
@@ -90,20 +90,22 @@ object KtorDemo {
 }
 
 fun setupGuice(app: Application, vararg modules: Module): Injector {
-    return Guice.createInjector(Stage.PRODUCTION,
-            object : AbstractModule() {
-                override fun configure() {
-                    modules.forEach { m -> install(m) }
+    return Guice.createInjector(
+        Stage.PRODUCTION,
+        object : AbstractModule() {
+            override fun configure() {
+                modules.forEach { m -> install(m) }
 
-                    bind(Application::class.java).toInstance(app)
+                bind(Application::class.java).toInstance(app)
 
-                    // endpoints get bound eagerly so routes are set up
-                    listOf(WidgetEndpoints::class.java)
-                            .forEach { bind(it).asEagerSingleton() }
+                // endpoints get bound eagerly so routes are set up
+                listOf(WidgetEndpoints::class.java)
+                    .forEach { bind(it).asEagerSingleton() }
 
-                    install(GuiceConfigModule())
-                }
-            })
+                install(GuiceConfigModule())
+            }
+        }
+    )
 }
 
 fun configureJackson(app: Application, objectMapper: ObjectMapper) {
@@ -126,12 +128,14 @@ fun configuredObjectMapper(): ObjectMapper {
 }
 
 fun buildJooqDsl(hikariDataSource: HikariDataSource): DSLContext {
-    return DSL.using(hikariDataSource,
-            SQLDialect.POSTGRES,
-            Settings()
-                    // we're using Postgres, so we can use INSERT ... RETURNING to get db-created column values on new
-                    // rows without a separate query
-                    .withReturnAllOnUpdatableRecord(true))
+    return DSL.using(
+        hikariDataSource,
+        SQLDialect.POSTGRES,
+        Settings()
+            // we're using Postgres, so we can use INSERT ... RETURNING to get db-created column values on new
+            // rows without a separate query
+            .withReturnAllOnUpdatableRecord(true)
+    )
 }
 
 class JooqModule(private val jooq: DSLContext) : AbstractModule() {

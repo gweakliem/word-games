@@ -8,8 +8,8 @@ import org.mpierce.ktordemo.jooq.Tables.WIDGETS
 class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
     override fun getWidget(id: Int): Widget? {
         val r = txnContext.selectFrom(WIDGETS)
-                .where(WIDGETS.ID.eq(id))
-                .fetchOne()
+            .where(WIDGETS.ID.eq(id))
+            .fetchOne()
 
         return r?.let { Widget(it) }
     }
@@ -17,10 +17,10 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
     override fun getAllWidgets(): List<Widget> {
         // selecting from a table yields typed `WidgetsRecord` objects -- no raw ResultSet wrangling
         return txnContext.selectFrom(WIDGETS)
-                .orderBy(WIDGETS.ID.asc())
-                .fetch()
-                .map { r -> Widget(r) }
-                .toList()
+            .orderBy(WIDGETS.ID.asc())
+            .fetch()
+            .map { r -> Widget(r) }
+            .toList()
     }
 
     override fun createWidget(name: String): Widget {
@@ -53,10 +53,10 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
         // You can also use `WidgetsRecord` for this, though:
         // https://www.jooq.org/doc/3.11/manual/sql-execution/crud-with-updatablerecords/simple-crud/
         val result = txnContext.update(WIDGETS)
-                .set(WIDGETS.NAME, name)
-                .where(WIDGETS.ID.eq(id))
-                .returning()
-                .fetchOne()
+            .set(WIDGETS.NAME, name)
+            .where(WIDGETS.ID.eq(id))
+            .returning()
+            .fetchOne()
 
         return Widget(result)
     }
@@ -68,22 +68,22 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
         // our "prefixes" table and "prefix" column.
 
         val prefixes = txnContext
-                .select(DSL.upper(DSL.left(WIDGETS.NAME, 1)).`as`("prefix"))
-                .from(WIDGETS)
-                .asTable("prefixes")
+            .select(DSL.upper(DSL.left(WIDGETS.NAME, 1)).`as`("prefix"))
+            .from(WIDGETS)
+            .asTable("prefixes")
 
         val field = prefixes.field("prefix").coerce(SQLDataType.CLOB)
 
         return txnContext
-                .select(field, DSL.count())
-                .from(prefixes)
-                .groupBy(field)
-                .orderBy(field)
-                .fetch()
-                // turn the Record2 tuple type into a Kotlin Pair
-                .map { Pair(it.value1(), it.value2()) }
-                // treat the Pairs as key -> value in a map, which keeps iteration order
-                .toMap()
+            .select(field, DSL.count())
+            .from(prefixes)
+            .groupBy(field)
+            .orderBy(field)
+            .fetch()
+            // turn the Record2 tuple type into a Kotlin Pair
+            .map { Pair(it.value1(), it.value2()) }
+            // treat the Pairs as key -> value in a map, which keeps iteration order
+            .toMap()
     }
 }
 

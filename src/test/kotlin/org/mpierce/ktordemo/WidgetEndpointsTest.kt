@@ -6,10 +6,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import io.ktor.server.testing.withTestApplication
-import kotlin.test.assertNotNull
 import org.jooq.DSLContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import kotlin.test.assertNotNull
 
 internal class WidgetEndpointsTest {
     /**
@@ -42,11 +42,14 @@ internal class WidgetEndpointsTest {
                 assertEquals(HttpStatusCode.OK, response.status())
 
                 // compare the json in a way that ignores whitespace, etc
-                DEFAULT_JSON_TEST_HELPER.assertJsonStrEquals("""{
+                DEFAULT_JSON_TEST_HELPER.assertJsonStrEquals(
+                    """{
                         "id": ${widget.id},
                         "name": "${widget.name}",
                         "createdAt": "${widget.createdAt}"
-                    }""", response.content!!)
+                    }""",
+                    response.content!!
+                )
             }
         }
     }
@@ -57,12 +60,17 @@ internal class WidgetEndpointsTest {
             val jooq = injector.getInstance(DSLContext::class.java)
             val daoFactory = injector.getInstance(DaoFactory::class.java)
 
-            with(handleRequest(HttpMethod.Post, "/widgets") {
-                setBody("""{
-                    "name": "qwerty"
-                    }""")
-                addHeader("Content-Type", "application/json")
-            }) {
+            with(
+                handleRequest(HttpMethod.Post, "/widgets") {
+                    setBody(
+                        """
+                        {
+                            "name": "qwerty"
+                        }"""
+                    )
+                    addHeader("Content-Type", "application/json")
+                }
+            ) {
                 assertEquals(HttpStatusCode.OK, response.status())
 
                 val rootNode = DEFAULT_JSON_TEST_HELPER.reader.readTree(response.content)
@@ -86,9 +94,9 @@ internal class WidgetEndpointsTest {
 
             val widgets = jooq.transactionResult { c ->
                 listOf(
-                        daoFactory.widgetDao(c.dsl()).createWidget("foo"),
-                        daoFactory.widgetDao(c.dsl()).createWidget("bar"),
-                        daoFactory.widgetDao(c.dsl()).createWidget("baz")
+                    daoFactory.widgetDao(c.dsl()).createWidget("foo"),
+                    daoFactory.widgetDao(c.dsl()).createWidget("bar"),
+                    daoFactory.widgetDao(c.dsl()).createWidget("baz")
                 )
             }
 

@@ -65,12 +65,15 @@ abstract class WidgetDaoTestBase {
             }
 
             val actual = widgetDao.widgetNameFirstLetterCounts()
-            assertEquals(mapOf(
+            assertEquals(
+                mapOf(
                     "E" to 1,
                     "K" to 3,
                     "P" to 1,
                     "W" to 2
-            ), actual)
+                ),
+                actual
+            )
             // in alphabetical order
             assertEquals(listOf("E", "K", "P", "W"), actual.keys.toList())
         }

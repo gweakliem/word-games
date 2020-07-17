@@ -9,14 +9,14 @@ import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.withTestApplication
-import java.io.Closeable
-import java.util.concurrent.atomic.AtomicReference
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.mpierce.ktordemo.jooq.Tables
+import java.io.Closeable
+import java.util.concurrent.atomic.AtomicReference
 
 class DbTestHelper : Closeable {
     private val dataSource: HikariDataSource = buildHikariConfig(
@@ -44,10 +44,10 @@ class DbTestHelper : Closeable {
         dslContext.transaction { c ->
             c.dsl().apply {
                 batch(
-                        deleteFrom(Tables.WIDGETS)
-                        // other tables as needed
+                    deleteFrom(Tables.WIDGETS)
+                    // other tables as needed
                 )
-                        .execute()
+                    .execute()
             }
         }
     }
@@ -69,9 +69,13 @@ class MemoryDaoFactory : DaoFactory {
  * fake dsl -- memory dao impls don't ever actually use a db connection
  */
 fun fakeJooqDsl(): DSLContext {
-    return DSL.using(MockConnection(MockDataProvider {
-        throw UnsupportedOperationException("should never be called")
-    }))
+    return DSL.using(
+        MockConnection(
+            MockDataProvider {
+                throw UnsupportedOperationException("should never be called")
+            }
+        )
+    )
 }
 
 /**
@@ -93,9 +97,9 @@ fun <R> withInMemoryTestApp(testBlock: TestApplicationEngine.(Injector) -> R) {
 
 fun setUpAppWithInMemoryPersistence(app: Application): Injector {
     val injector = setupGuice(
-            app,
-            JooqModule(fakeJooqDsl()),
-            DaoFactoryModule(MemoryDaoFactory())
+        app,
+        JooqModule(fakeJooqDsl()),
+        DaoFactoryModule(MemoryDaoFactory())
     )
 
     configureJackson(app, DEFAULT_JSON_TEST_HELPER.mapper)

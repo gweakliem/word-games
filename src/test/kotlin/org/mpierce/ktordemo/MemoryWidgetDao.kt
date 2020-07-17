@@ -37,9 +37,9 @@ class MemoryWidgetDao : WidgetDao {
     override fun widgetNameFirstLetterCounts(): Map<String, Int> {
         val prefix = { s: String -> s.substring(0, 1).toUpperCase(Locale.US) }
         return widgets
-                .entries
-                .sortedBy { it.value.name.let(prefix) }
-                .groupBy { it.value.name.let(prefix) }
-                .mapValues { (_, values) -> values.size }
+            .entries
+            .sortedBy { it.value.name.let(prefix) }
+            .groupBy { it.value.name.let(prefix) }
+            .mapValues { (_, values) -> values.size }
     }
 }

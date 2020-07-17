@@ -21,6 +21,7 @@ This project structure isn't about showing you how to write a web service in the
 - [Konfig](https://github.com/npryce/konfig/): Combine configuration from multiple files, env vars, etc because it's nice to be able to easily override config values.
 - [Docker Compose](https://docs.docker.com/compose/): For easy local dev setup of Postgres.
 - [Docker](https://docs.docker.com/reference/): Because everyone wants Docker images, even though you may [wish to use caution](https://thehftguy.com/2016/11/01/docker-in-production-an-history-of-failure/).
+- [kotlinter](https://plugins.gradle.org/plugin/org.jmailen.kotlinter) for automatically checking and applying code style
 
 ## Usage 
 
