@@ -65,7 +65,7 @@ object KtorDemo {
 
         val jooq = CompletableFuture.supplyAsync { buildJooqDsl(HikariDataSource(buildHikariConfig(config, "KTOR_DEMO_DB_"))) }
 
-        val server = embeddedServer(Netty, port = KonfigHttpServerConfig(config).httpPort) {
+        val server = embeddedServer(Netty, port = HttpServerConfig(config).httpPort) {
             // add some built-in ktor features
             install(StatusPages) {
                 // log when handling a request ends up throwing

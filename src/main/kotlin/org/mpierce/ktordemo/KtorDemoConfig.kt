@@ -12,14 +12,15 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * Using an interface for config makes it easier to construct instances off of test config if needed.
+ * This wrapper class insulates the rest of the code from the specific choice of the Konfig library.
+ *
+ * If you choose to use a different confib lib later on, it will be easy to change.
+ *
+ * In addition, by looking up the config values when this object is constructed, you'll get any errors about missing
+ * config values quickly.
  */
-interface HttpServerConfig {
-    val httpPort: Int
-}
-
-class KonfigHttpServerConfig(config: Configuration) : HttpServerConfig {
-    override val httpPort: Int = config[Key("KTOR_DEMO_HTTP_PORT", intType)]
+class HttpServerConfig(config: Configuration) {
+    val httpPort: Int = config[Key("KTOR_DEMO_HTTP_PORT", intType)]
 }
 
 /**
