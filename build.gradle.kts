@@ -12,14 +12,14 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.72"
     id("application")
     id("org.flywaydb.flyway") version "6.5.1"
-    id("nu.studer.jooq") version "4.2"
-    id("com.github.ben-manes.versions") version "0.28.0"
+    id("nu.studer.jooq") version "5.0.1"
+    id("com.github.ben-manes.versions") version "0.29.0"
     id("org.jmailen.kotlinter") version "2.4.1"
 }
 
 val deps by extra {
     mapOf(
-        "jackson" to "2.11.0",
+        "jackson" to "2.11.2",
         "junit" to "5.6.2",
         "ktor" to "1.3.2",
         // also see version in buildscript
@@ -36,7 +36,39 @@ val testDbName by extra { "ktor-demo-test" }
 val jdbcUrl by extra { "jdbc:postgresql://localhost:25432/ktor-demo-dev" }
 val testJdbcUrl by extra { "jdbc:postgresql://localhost:25432/$testDbName" }
 
-apply(from = "jooq.gradle")
+jooq {
+    version.set("3.13.4")
+    edition.set(nu.studer.gradle.jooq.JooqEdition.OSS)
+
+    configurations {
+        // source set name to put source in
+        create("main") {
+            jooqConfiguration.apply {
+                // muffle jooq's verbose output when generating code
+                logging = org.jooq.meta.jaxb.Logging.WARN
+                jdbc.apply {
+                    driver = "org.postgresql.Driver"
+                    url = jdbcUrl
+                    user = dbUser
+                    password = dbPass
+                }
+                generator.apply {
+                    target.apply {
+                        packageName = "org.mpierce.ktordemo.jooq"
+                    }
+                    database.apply {
+                        inputSchema = "public"
+                        excludes = "flyway_schema_history"
+                    }
+                    generate.apply {
+                        // avoid needing another dependency just to have this annotation
+                        isGeneratedAnnotation = false
+                    }
+                }
+            }
+        }
+    }
+}
 
 application {
     mainClassName = "org.mpierce.ktordemo.KtorDemo"
@@ -70,8 +102,8 @@ dependencies {
     implementation("com.zaxxer", "HikariCP", "3.4.5")
     implementation("org.jooq", "jooq")
     runtimeOnly("org.postgresql", "postgresql", "${deps["postgresql"]}")
-    jooqRuntime("org.postgresql", "postgresql", "${deps["postgresql"]}")
-    jooqRuntime("org.slf4j", "slf4j-simple", deps["slf4j"])
+    jooqGenerator("org.postgresql", "postgresql", "${deps["postgresql"]}")
+    jooqGenerator("org.slf4j", "slf4j-simple", deps["slf4j"])
 
     implementation("org.mpierce.guice.warmup", "guice-warmup", "0.1")
 
@@ -122,6 +154,10 @@ tasks {
 
     clean {
         dependsOn(flywayCleanTest)
+    }
+
+    named("generateJooq") {
+        dependsOn(flywayMigrate)
     }
 
     // compile to java 8 bytecode, not java 6
