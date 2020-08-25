@@ -12,7 +12,6 @@ import io.ktor.server.testing.withTestApplication
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.jooq.tools.jdbc.MockConnection
-import org.jooq.tools.jdbc.MockDataProvider
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.mpierce.ktordemo.jooq.Tables
 import java.io.Closeable
@@ -70,11 +69,9 @@ class MemoryDaoFactory : DaoFactory {
  */
 fun fakeJooqDsl(): DSLContext {
     return DSL.using(
-        MockConnection(
-            MockDataProvider {
-                throw UnsupportedOperationException("should never be called")
-            }
-        )
+        MockConnection {
+            throw UnsupportedOperationException("should never be called")
+        }
     )
 }
 
