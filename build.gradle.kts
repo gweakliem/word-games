@@ -4,17 +4,17 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql", "postgresql", "42.2.15")
+        classpath("org.postgresql", "postgresql", "42.2.16")
     }
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.4.0"
-    id("application")
+    kotlin("jvm") version "1.4.10"
+    application
     id("org.flywaydb.flyway") version "6.5.5"
-    id("nu.studer.jooq") version "5.0.1"
-    id("com.github.ben-manes.versions") version "0.29.0"
-    id("org.jmailen.kotlinter") version "3.0.0"
+    id("nu.studer.jooq") version "5.0.2"
+    id("com.github.ben-manes.versions") version "0.31.0"
+    id("org.jmailen.kotlinter") version "3.0.2"
 }
 
 val deps by extra {
@@ -23,7 +23,7 @@ val deps by extra {
         "junit" to "5.6.2",
         "ktor" to "1.4.0",
         // also see version in buildscript
-        "postgresql" to "42.2.15",
+        "postgresql" to "42.2.16",
         "slf4j" to "1.7.30"
     )
 }
