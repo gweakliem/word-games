@@ -4,26 +4,26 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql", "postgresql", "42.2.16")
+        classpath("org.postgresql", "postgresql", "42.2.17")
     }
 }
 
 plugins {
     kotlin("jvm") version "1.4.10"
     application
-    id("org.flywaydb.flyway") version "6.5.5"
-    id("nu.studer.jooq") version "5.0.2"
-    id("com.github.ben-manes.versions") version "0.31.0"
-    id("org.jmailen.kotlinter") version "3.0.2"
+    id("org.flywaydb.flyway") version "7.0.2"
+    id("nu.studer.jooq") version "5.1.1"
+    id("com.github.ben-manes.versions") version "0.33.0"
+    id("org.jmailen.kotlinter") version "3.2.0"
 }
 
 val deps by extra {
     mapOf(
-        "jackson" to "2.11.2",
-        "junit" to "5.6.2",
-        "ktor" to "1.4.0",
+        "jackson" to "2.11.3",
+        "junit" to "5.7.0",
+        "ktor" to "1.4.1",
         // also see version in buildscript
-        "postgresql" to "42.2.16",
+        "postgresql" to "42.2.17",
         "slf4j" to "1.7.30"
     )
 }
@@ -156,8 +156,9 @@ tasks {
         dependsOn(flywayCleanTest)
     }
 
-    named("generateJooq") {
+    named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
         dependsOn(flywayMigrate)
+        allInputsDeclared.set(true)
     }
 
     // compile to java 8 bytecode, not java 6
