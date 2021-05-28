@@ -13,6 +13,11 @@ import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.jooq.tools.jdbc.MockConnection
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.mpierce.ktordemo.cli.JooqModule
+import org.mpierce.ktordemo.cli.buildJooq
+import org.mpierce.ktordemo.cli.configureJackson
+import org.mpierce.ktordemo.cli.configuredObjectMapper
+import org.mpierce.ktordemo.cli.setupGuice
 import org.mpierce.ktordemo.jooq.Tables
 import java.io.Closeable
 import java.util.concurrent.atomic.AtomicReference
@@ -33,11 +38,7 @@ class DbTestHelper : Closeable {
         "KTOR_DEMO_DB_"
     ).let(::HikariDataSource)
 
-    val dslContext: DSLContext
-
-    init {
-        dslContext = buildJooqDsl(dataSource)
-    }
+    val dslContext: DSLContext = buildJooq(dataSource)
 
     fun deleteAllRows() {
         dslContext.transaction { c ->

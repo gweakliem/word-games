@@ -71,7 +71,7 @@ jooq {
 }
 
 application {
-    mainClass.set("org.mpierce.ktordemo.KtorDemo")
+    mainClass.set("org.mpierce.ktordemo.Main")
 }
 
 repositories {
@@ -104,8 +104,11 @@ dependencies {
     runtimeOnly("org.postgresql", "postgresql", "${deps["postgresql"]}")
     jooqGenerator("org.postgresql", "postgresql", "${deps["postgresql"]}")
     jooqGenerator("org.slf4j", "slf4j-simple", deps["slf4j"])
+    implementation("org.flywaydb", "flyway-core", "7.9.1")
 
     implementation("org.mpierce.guice.warmup", "guice-warmup", "0.2")
+
+    implementation("com.github.ajalt.clikt", "clikt", "3.1.0")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "${deps["junit"]}")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "${deps["junit"]}")
@@ -126,7 +129,7 @@ flyway {
 tasks {
     // 'run' is a kotlin built-in function
     (run) {
-        args = listOf("local-dev-config")
+        args = listOf("run-server", "--config", "local-dev-config")
     }
 
     val flywayCleanTest by registering(FlywayCleanTask::class) {

@@ -1,16 +1,21 @@
-package org.mpierce.ktordemo
+package org.mpierce.ktordemo.cli
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.path
 import com.google.inject.AbstractModule
 import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Module
 import com.google.inject.Stage
+import com.natpryce.konfig.Configuration
 import com.natpryce.konfig.ConfigurationProperties
+import com.natpryce.konfig.EmptyConfiguration
 import com.natpryce.konfig.EnvironmentVariables
 import com.natpryce.konfig.overriding
 import com.zaxxer.hikari.HikariDataSource
@@ -28,8 +33,14 @@ import org.jooq.SQLDialect
 import org.jooq.conf.Settings
 import org.jooq.impl.DSL
 import org.mpierce.guice.warmup.GuiceWarmup
+import org.mpierce.ktordemo.DaoFactoryModule
+import org.mpierce.ktordemo.HttpServerConfig
+import org.mpierce.ktordemo.SqlDaoFactory
+import org.mpierce.ktordemo.WidgetEndpoints
+import org.mpierce.ktordemo.buildHikariConfig
+import org.mpierce.ktordemo.fromDirectory
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.slf4j.bridge.SLF4JBridgeHandler
 import org.slf4j.event.Level
 import java.nio.file.Path
 import java.time.Duration
@@ -37,16 +48,14 @@ import java.time.Instant
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Future
 
-object KtorDemo {
-    private val logger = LoggerFactory.getLogger(KtorDemo::class.java)
+class RunServer(private val start: Instant) : CliktCommand() {
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+    }
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val start = Instant.now()
-        // Use SLF4J for java.util.logging
-        SLF4JBridgeHandler.removeHandlersForRootLogger()
-        SLF4JBridgeHandler.install()
+    private val config by option(help = "Directory of properties files to read").path()
 
+    override fun run() {
         // Help the service start up as fast as possible by initializing a few slow things in different
         // threads. If threading is too much complexity, just remove the threads and do things serially.
         val jackson = CompletableFuture.supplyAsync { configuredObjectMapper() }
@@ -57,13 +66,9 @@ object KtorDemo {
             CompletableFuture.supplyAsync { GuiceWarmup.warmUp() }
         )
 
-        // Here, we use commons-configuration's CompositeConfiguration and config-magic to let us combine different config
-        // sources.
-        val configPath = args.getOrNull(0) ?: throw RuntimeException("Must provide config dir as a CLI arg")
-        val config = EnvironmentVariables() overriding
-            ConfigurationProperties.fromDirectory(Path.of(configPath))
+        val config = buildConfig(config)
 
-        val jooq = CompletableFuture.supplyAsync { buildJooqDsl(HikariDataSource(buildHikariConfig(config, "KTOR_DEMO_DB_"))) }
+        val jooq = CompletableFuture.supplyAsync { buildJooq(configuredDataSource(config)) }
 
         val server = embeddedServer(Netty, port = HttpServerConfig(config).httpPort) {
             // add some built-in ktor features
@@ -89,24 +94,9 @@ object KtorDemo {
     }
 }
 
-fun setupGuice(app: Application, vararg modules: Module): Injector {
-    return Guice.createInjector(
-        Stage.PRODUCTION,
-        object : AbstractModule() {
-            override fun configure() {
-                modules.forEach { m -> install(m) }
-
-                bind(Application::class.java).toInstance(app)
-
-                // endpoints get bound eagerly so routes are set up
-                listOf(WidgetEndpoints::class.java)
-                    .forEach { bind(it).asEagerSingleton() }
-
-                install(GuiceConfigModule())
-            }
-        }
-    )
-}
+fun buildConfig(configDir: Path?) =
+    EnvironmentVariables() overriding
+        (configDir?.let { ConfigurationProperties.fromDirectory(it) } ?: EmptyConfiguration)
 
 fun configureJackson(app: Application, objectMapper: ObjectMapper) {
     app.install(ContentNegotiation) {
@@ -127,7 +117,10 @@ fun configuredObjectMapper(): ObjectMapper {
     }
 }
 
-fun buildJooqDsl(hikariDataSource: HikariDataSource): DSLContext {
+fun configuredDataSource(config: Configuration) =
+    HikariDataSource(buildHikariConfig(config, "KTOR_DEMO_DB_"))
+
+fun buildJooq(hikariDataSource: HikariDataSource): DSLContext {
     return DSL.using(
         hikariDataSource,
         SQLDialect.POSTGRES,
@@ -154,4 +147,23 @@ class GuiceConfigModule : AbstractModule() {
         binder().requireExplicitBindings()
         binder().disableCircularProxies()
     }
+}
+
+fun setupGuice(app: Application, vararg modules: Module): Injector {
+    return Guice.createInjector(
+        Stage.PRODUCTION,
+        object : AbstractModule() {
+            override fun configure() {
+                modules.forEach { m -> install(m) }
+
+                bind(Application::class.java).toInstance(app)
+
+                // endpoints get bound eagerly so routes are set up
+                listOf(WidgetEndpoints::class.java)
+                    .forEach { bind(it).asEagerSingleton() }
+
+                install(GuiceConfigModule())
+            }
+        }
+    )
 }
