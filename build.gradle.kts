@@ -4,26 +4,26 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql", "postgresql", "42.2.17")
+        classpath("org.postgresql", "postgresql", "42.2.20")
     }
 }
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.5.10"
     application
-    id("org.flywaydb.flyway") version "7.0.2"
+    id("org.flywaydb.flyway") version "7.9.1"
     id("nu.studer.jooq") version "5.1.1"
-    id("com.github.ben-manes.versions") version "0.33.0"
-    id("org.jmailen.kotlinter") version "3.2.0"
+    id("com.github.ben-manes.versions") version "0.39.0"
+    id("org.jmailen.kotlinter") version "3.4.4"
 }
 
 val deps by extra {
     mapOf(
-        "jackson" to "2.11.3",
-        "junit" to "5.7.0",
-        "ktor" to "1.4.1",
+        "jackson" to "2.12.3",
+        "junit" to "5.7.1",
+        "ktor" to "1.6.0",
         // also see version in buildscript
-        "postgresql" to "42.2.17",
+        "postgresql" to "42.2.20",
         "slf4j" to "1.7.30"
     )
 }
@@ -71,11 +71,11 @@ jooq {
 }
 
 application {
-    mainClassName = "org.mpierce.ktordemo.KtorDemo"
+    mainClass.set("org.mpierce.ktordemo.KtorDemo")
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -95,17 +95,17 @@ dependencies {
     runtimeOnly("org.slf4j", "jcl-over-slf4j", "${deps["slf4j"]}")
     implementation("org.slf4j", "jul-to-slf4j", "${deps["slf4j"]}")
 
-    implementation("com.google.inject", "guice", "4.2.3")
+    implementation("com.google.inject", "guice", "5.0.1")
 
     implementation("com.natpryce", "konfig", "1.6.10.0")
 
-    implementation("com.zaxxer", "HikariCP", "3.4.5")
+    implementation("com.zaxxer", "HikariCP", "4.0.3")
     implementation("org.jooq", "jooq")
     runtimeOnly("org.postgresql", "postgresql", "${deps["postgresql"]}")
     jooqGenerator("org.postgresql", "postgresql", "${deps["postgresql"]}")
     jooqGenerator("org.slf4j", "slf4j-simple", deps["slf4j"])
 
-    implementation("org.mpierce.guice.warmup", "guice-warmup", "0.1")
+    implementation("org.mpierce.guice.warmup", "guice-warmup", "0.2")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "${deps["junit"]}")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "${deps["junit"]}")

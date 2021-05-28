@@ -15,9 +15,7 @@ class MemoryWidgetDao : WidgetDao {
     override fun getWidget(id: Int): Widget? = widgets[id]
 
     @Synchronized
-    override fun getAllWidgets(): List<Widget> {
-        return widgets.values.toList()
-    }
+    override fun getAllWidgets(): List<Widget> = widgets.values.toList()
 
     @Synchronized
     override fun createWidget(name: String): Widget {
@@ -35,7 +33,7 @@ class MemoryWidgetDao : WidgetDao {
 
     @Synchronized
     override fun widgetNameFirstLetterCounts(): Map<String, Int> {
-        val prefix = { s: String -> s.substring(0, 1).toUpperCase(Locale.US) }
+        val prefix = { s: String -> s.substring(0, 1).uppercase(Locale.US) }
         return widgets
             .entries
             .sortedBy { it.value.name.let(prefix) }
