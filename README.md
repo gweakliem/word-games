@@ -60,9 +60,10 @@ The specific technologies chosen for this toy service are less important than th
     - Warning signs: having to customize app startup by overriding methods inherited from some library or using callbacks.
 - Use a language with static type checking and good IDE support.
     - The productivity and long term maintenance gains are impossible to ignore.
-    - Syntax highlighting does not count as IDE support. You need to be able to find usages, rename, etc with very high (ideally 100%) accuracy. 
+    - Syntax highlighting does not count as IDE support. You need to be able to find usages, rename, extract method, etc with very high (ideally 100%) accuracy. 
     - There's a reason every "dynamic" language has some sort of static typing story nowadays (TypeScript for JavaScript, type annotations for Python, etc).
 - Use a language with support for lightweight concurrency. In a microservice world, you spend a lot of time waiting for network packets, and you might have 100,000 mostly idle network connections. You [probably don't need microservices](https://tailscale.com/blog/modules-monoliths-and-microservices/), but even so, it's fairly achievable these days to do better than 1 connection per thread without falling back to the "write [CPS](https://en.wikipedia.org/wiki/Continuation-passing_style) by hand" burden of callback hell, so you might as well.
+- Use a langauge with support for multithreading. Lightweight concurrency is great for tasks that mostly wait for I/O, but for CPU-bound tasks (especially parallelizable ones), threads are key.
 - Spend your innovation budget wisely.
     - If you want to do something wild, are you really sure that it will be a major driver of project success, or is it just a cool tech that you wanted an excuse to use?
 
