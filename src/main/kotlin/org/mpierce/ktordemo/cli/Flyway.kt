@@ -22,7 +22,7 @@ class Flyway : CliktCommand() {
     init {
         subcommands(
             Migrate(),
-            Info()
+            Info(),
         )
     }
 

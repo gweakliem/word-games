@@ -20,7 +20,7 @@ object Main {
             init {
                 subcommands(
                     RunServer(start),
-                    Flyway()
+                    Flyway(),
                 )
             }
 

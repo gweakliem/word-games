@@ -33,9 +33,9 @@ class DbTestHelper : Closeable {
             "KTOR_DEMO_DB_PASSWORD" to "ktor-demo-test",
             "KTOR_DEMO_DB_MAX_POOL_SIZE" to "4",
             "KTOR_DEMO_DB_CONN_INIT_SQL" to "SET TIME ZONE 'UTC'",
-            "KTOR_DEMO_DB_AUTO_COMMIT" to "false"
+            "KTOR_DEMO_DB_AUTO_COMMIT" to "false",
         ),
-        "KTOR_DEMO_DB_"
+        "KTOR_DEMO_DB_",
     ).let(::HikariDataSource)
 
     val dslContext: DSLContext = buildJooq(dataSource)
@@ -44,7 +44,7 @@ class DbTestHelper : Closeable {
         dslContext.transaction { c ->
             c.dsl().apply {
                 batch(
-                    deleteFrom(Tables.WIDGETS)
+                    deleteFrom(Tables.WIDGETS),
                     // other tables as needed
                 )
                     .execute()
@@ -53,7 +53,6 @@ class DbTestHelper : Closeable {
     }
 
     override fun close() {
-        dslContext.close()
         dataSource.close()
     }
 }
@@ -72,7 +71,7 @@ fun fakeJooqDsl(): DSLContext {
     return DSL.using(
         MockConnection {
             throw UnsupportedOperationException("should never be called")
-        }
+        },
     )
 }
 
@@ -97,7 +96,7 @@ fun setUpAppWithInMemoryPersistence(app: Application): Injector {
     val injector = setupGuice(
         app,
         JooqModule(fakeJooqDsl()),
-        DaoFactoryModule(MemoryDaoFactory())
+        DaoFactoryModule(MemoryDaoFactory()),
     )
 
     configureJackson(app, DEFAULT_JSON_TEST_HELPER.mapper)

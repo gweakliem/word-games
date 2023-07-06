@@ -48,7 +48,7 @@ internal class WidgetEndpointsTest {
                         "name": "${widget.name}",
                         "createdAt": "${widget.createdAt}"
                     }""",
-                    response.content!!
+                    response.content!!,
                 )
             }
         }
@@ -66,10 +66,10 @@ internal class WidgetEndpointsTest {
                         """
                         {
                             "name": "qwerty"
-                        }"""
+                        }""",
                     )
                     addHeader("Content-Type", "application/json")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
 
@@ -96,7 +96,7 @@ internal class WidgetEndpointsTest {
                 listOf(
                     daoFactory.widgetDao(c.dsl()).createWidget("foo"),
                     daoFactory.widgetDao(c.dsl()).createWidget("bar"),
-                    daoFactory.widgetDao(c.dsl()).createWidget("baz")
+                    daoFactory.widgetDao(c.dsl()).createWidget("baz"),
                 )
             }
 

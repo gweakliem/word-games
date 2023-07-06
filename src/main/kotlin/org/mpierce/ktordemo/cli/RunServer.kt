@@ -63,7 +63,7 @@ class RunServer(private val start: Instant) : CliktCommand() {
         // This is totally optional but it helps the service start faster by having classes already loaded
         // by the time they're needed.
         val otherWarmupFutures: List<Future<*>> = listOf(
-            CompletableFuture.supplyAsync { GuiceWarmup.warmUp() }
+            CompletableFuture.supplyAsync { GuiceWarmup.warmUp() },
         )
 
         val config = buildConfig(config)
@@ -85,7 +85,7 @@ class RunServer(private val start: Instant) : CliktCommand() {
             setupGuice(
                 this,
                 JooqModule(jooq.get()),
-                DaoFactoryModule(SqlDaoFactory())
+                DaoFactoryModule(SqlDaoFactory()),
             )
             otherWarmupFutures.forEach { it.get() }
             logger.info("Server initialized in ${Duration.between(start, Instant.now())}")
@@ -111,7 +111,7 @@ fun configuredObjectMapper(): ObjectMapper {
         // Don't barf when deserializing json with extra stuff in it
         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         // Kotlin support
-        registerModule(KotlinModule())
+        registerModule(KotlinModule.Builder().build())
         // Handle Java 8's new time types
         registerModule(JavaTimeModule())
     }
@@ -127,7 +127,7 @@ fun buildJooq(hikariDataSource: HikariDataSource): DSLContext {
         Settings()
             // we're using Postgres, so we can use INSERT ... RETURNING to get db-created column values on new
             // rows without a separate query
-            .withReturnAllOnUpdatableRecord(true)
+            .withReturnAllOnUpdatableRecord(true),
     )
 }
 
@@ -164,6 +164,6 @@ fun setupGuice(app: Application, vararg modules: Module): Injector {
 
                 install(GuiceConfigModule())
             }
-        }
+        },
     )
 }

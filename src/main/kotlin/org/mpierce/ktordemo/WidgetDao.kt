@@ -44,7 +44,7 @@ interface WidgetDao {
 data class Widget(
     @JsonProperty("id") val id: Int,
     @JsonProperty("name") val name: String,
-    @JsonProperty("createdAt") val createdAt: Instant
+    @JsonProperty("createdAt") val createdAt: Instant,
 ) {
     constructor(r: WidgetsRecord) : this(r.id, r.name, r.createdAt.toInstant())
 }

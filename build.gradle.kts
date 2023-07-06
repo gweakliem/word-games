@@ -1,30 +1,29 @@
 import org.flywaydb.gradle.task.FlywayCleanTask
 import org.flywaydb.gradle.task.FlywayMigrateTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.postgresql", "postgresql", "42.2.20")
+        classpath("org.postgresql", "postgresql", "42.6.0")
     }
 }
 
 plugins {
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.9.0"
     application
-    id("org.flywaydb.flyway") version "7.9.1"
-    id("nu.studer.jooq") version "5.1.1"
-    id("com.github.ben-manes.versions") version "0.39.0"
-    id("org.jmailen.kotlinter") version "3.4.4"
+    id("org.flywaydb.flyway") version "9.20.0"
+    id("nu.studer.jooq") version "8.2.1"
+    id("com.github.ben-manes.versions") version "0.47.0"
+    id("org.jmailen.kotlinter") version "3.15.0"
 }
 
 val deps by extra {
     mapOf(
-        "jackson" to "2.12.3",
-        "junit" to "5.7.1",
+        "jackson" to "2.15.2",
+        "junit" to "5.9.3",
         "ktor" to "1.6.0",
         // also see version in buildscript
-        "postgresql" to "42.2.20",
-        "slf4j" to "1.7.30"
+        "postgresql" to "42.6.0",
+        "slf4j" to "2.0.7"
     )
 }
 
@@ -37,7 +36,7 @@ val jdbcUrl by extra { "jdbc:postgresql://localhost:25432/ktor-demo-dev" }
 val testJdbcUrl by extra { "jdbc:postgresql://localhost:25432/$testDbName" }
 
 jooq {
-    version.set("3.13.4")
+    version.set("3.18.5")
     edition.set(nu.studer.gradle.jooq.JooqEdition.OSS)
 
     configurations {
@@ -91,11 +90,11 @@ dependencies {
     // to make sure the version matches the kotlin stdlib
     implementation(kotlin("reflect"))
 
-    runtimeOnly("ch.qos.logback", "logback-classic", "1.2.3")
+    runtimeOnly("ch.qos.logback", "logback-classic", "1.4.8")
     runtimeOnly("org.slf4j", "jcl-over-slf4j", "${deps["slf4j"]}")
     implementation("org.slf4j", "jul-to-slf4j", "${deps["slf4j"]}")
 
-    implementation("com.google.inject", "guice", "5.0.1")
+    implementation("com.google.inject", "guice", "7.0.0")
 
     implementation("com.natpryce", "konfig", "1.6.10.0")
 
@@ -104,7 +103,7 @@ dependencies {
     runtimeOnly("org.postgresql", "postgresql", "${deps["postgresql"]}")
     jooqGenerator("org.postgresql", "postgresql", "${deps["postgresql"]}")
     jooqGenerator("org.slf4j", "slf4j-simple", deps["slf4j"])
-    implementation("org.flywaydb", "flyway-core", "7.9.1")
+    implementation("org.flywaydb", "flyway-core", "9.20.0")
 
     implementation("org.mpierce.guice.warmup", "guice-warmup", "0.2")
 
@@ -112,6 +111,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "${deps["junit"]}")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "${deps["junit"]}")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 configurations.all {
@@ -126,6 +126,17 @@ flyway {
     validateMigrationNaming = true
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+        vendor.set(JvmVendorSpec.AZUL)
+    }
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
 tasks {
     // 'run' is a kotlin built-in function
     (run) {
@@ -136,6 +147,7 @@ tasks {
         url = testJdbcUrl
         user = testDbUser
         password = testDbPass
+        cleanDisabled = false
     }
 
     val flywayMigrateTest by registering(FlywayMigrateTask::class) {
@@ -162,10 +174,5 @@ tasks {
     named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
         dependsOn(flywayMigrate)
         allInputsDeclared.set(true)
-    }
-
-    // compile to java 8 bytecode, not java 6
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
     }
 }

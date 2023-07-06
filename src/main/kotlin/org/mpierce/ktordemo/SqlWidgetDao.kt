@@ -56,7 +56,7 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
             .set(WIDGETS.NAME, name)
             .where(WIDGETS.ID.eq(id))
             .returning()
-            .fetchOne()
+            .fetchSingle()
 
         return Widget(result)
     }
@@ -72,7 +72,7 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
             .from(WIDGETS)
             .asTable("prefixes")
 
-        val field = prefixes.field("prefix").coerce(SQLDataType.CLOB)
+        val field = prefixes.field("prefix")!!.coerce(SQLDataType.CLOB)
 
         return txnContext
             .select(field, DSL.count())
