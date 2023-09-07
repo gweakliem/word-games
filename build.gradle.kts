@@ -8,22 +8,22 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.10"
     application
-    id("org.flywaydb.flyway") version "9.20.0"
+    id("org.flywaydb.flyway") version "9.22.0"
     id("nu.studer.jooq") version "8.2.1"
     id("com.github.ben-manes.versions") version "0.47.0"
-    id("org.jmailen.kotlinter") version "3.15.0"
+    id("org.jmailen.kotlinter") version "3.16.0"
 }
 
 val deps by extra {
     mapOf(
         "jackson" to "2.15.2",
-        "junit" to "5.9.3",
-        "ktor" to "1.6.0",
+        "junit" to "5.10.0",
+        "ktor" to "1.6.8",
         // also see version in buildscript
         "postgresql" to "42.6.0",
-        "slf4j" to "2.0.7"
+        "slf4j" to "2.0.9"
     )
 }
 
@@ -90,7 +90,7 @@ dependencies {
     // to make sure the version matches the kotlin stdlib
     implementation(kotlin("reflect"))
 
-    runtimeOnly("ch.qos.logback", "logback-classic", "1.4.8")
+    runtimeOnly("ch.qos.logback", "logback-classic", "1.4.11")
     runtimeOnly("org.slf4j", "jcl-over-slf4j", "${deps["slf4j"]}")
     implementation("org.slf4j", "jul-to-slf4j", "${deps["slf4j"]}")
 
@@ -98,18 +98,19 @@ dependencies {
 
     implementation("com.natpryce", "konfig", "1.6.10.0")
 
-    implementation("com.zaxxer", "HikariCP", "4.0.3")
+    implementation("com.zaxxer", "HikariCP", "5.0.1")
     implementation("org.jooq", "jooq")
     runtimeOnly("org.postgresql", "postgresql", "${deps["postgresql"]}")
     jooqGenerator("org.postgresql", "postgresql", "${deps["postgresql"]}")
     jooqGenerator("org.slf4j", "slf4j-simple", deps["slf4j"])
-    implementation("org.flywaydb", "flyway-core", "9.20.0")
+    implementation("org.flywaydb", "flyway-core", "9.22.0")
 
     implementation("org.mpierce.guice.warmup", "guice-warmup", "0.2")
 
-    implementation("com.github.ajalt.clikt", "clikt", "3.1.0")
+    implementation("com.github.ajalt.clikt", "clikt", "4.2.0")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "${deps["junit"]}")
+    testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "${deps["junit"]}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
