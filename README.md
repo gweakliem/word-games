@@ -73,13 +73,14 @@ The specific technologies chosen for this toy service are less important than th
 
 Local dev setup steps:
 
-- Install Java 11. [sdkman](http://sdkman.io/) is a handy tool for managing multiple JVM installations.
+- Install Java 17. [sdkman](http://sdkman.io/) is a handy tool for managing multiple JVM installations.
+  - `sdk i java 17.0.8-zulu`
 - Start a db container: `docker-compose up -d`
 - Do a build: `./gradlew build`
     - This does a DB migration, which you can do yourself too: `./gradlew flywayMigrate`
     - It then generates jOOQ sources from that DB: `./gradlew generatePrimaryDbJooqSchemaSource`
 - Run `KtorDemo` via IntelliJ, or with `./gradlew run`.
-    - It takes one command line arg (already set up for you if you use the `run` task), which should be the path to the `local-dev-config` directory.
+    - It takes one command line arg (already set up for you if you use the `run` task), which should be the path to the `local-dev-config` directory: `--config=path/to/local-dev-config`
 - Note the `formatKotlin` task -- autoformat all code with `./gradlew formatKotlin`
 
 # Testing
