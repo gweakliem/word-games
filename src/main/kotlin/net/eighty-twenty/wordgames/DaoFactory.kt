@@ -10,7 +10,7 @@ import org.jooq.DSLContext
  * transaction boundaries.
  */
 interface DaoFactory {
-    fun widgetDao(txnContext: DSLContext): WidgetDao
+    fun wordDao(txnContext: DSLContext): WordDao
 }
 
 class DaoFactoryModule(private val daoFactory: DaoFactory) : AbstractModule() {

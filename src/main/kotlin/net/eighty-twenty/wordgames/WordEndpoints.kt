@@ -19,27 +19,27 @@ import org.slf4j.LoggerFactory
 /**
  * Instead of declaring endpoint logic inline, we can also do it with a class with DI by Guice.
  */
-class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, daoFactory: DaoFactory) {
+class WordEndpoints @Inject constructor(app: Application, jooq: DSLContext, daoFactory: DaoFactory) {
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(WidgetEndpoints::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(WordEndpoints::class.java)
     }
 
     init {
         app.routing {
-            get("/widgets/id/{id}") {
+            get("/words/id/{id}") {
                 // Could also use a typed location to avoid the string-typing https://ktor.io/samples/locations.html
                 val id = call.parameters["id"]!!.toInt()
 
-                // just to show we can, we'll run this query async style and get back a `Deferred<Widget>`
+                // just to show we can, we'll run this query async style and get back a `Deferred<Word>`
                 val deferred = async {
                     // use a method reference for "the thing that makes the dao I want for this transaction"
-                    jooq.txnWithDao(daoFactory::widgetDao) {
-                        it.getWidget(id)
+                    jooq.txnWithDao(daoFactory::wordDao) {
+                        it.getWord(id)
                     }
                 }
 
                 // sql request is in progress on the IO dispatcher
-                logger.debug("Loading widget $id")
+                logger.debug("Loading word $id")
 
                 // wait for the query to finish
                 when (val w = deferred.await()) {
@@ -48,31 +48,31 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
                 }
             }
 
-            put("widgets/id/{id}") {
+            put("words/id/{id}") {
                 val id = call.parameters["id"]!!.toInt()
-                val name = call.parameters["name"]!!.toString()
+                val wordVal = call.parameters["word"]!!.toString()
 
-                // this time, no `async`, and thus the return type is `Widget`, not `Deferred<Widget>`
-                val widget = jooq.txnWithDao(daoFactory::widgetDao) {
-                    it.updateWidgetName(id, name)
+                // this time, no `async`, and thus the return type is `Word`, not `Deferred<Word>`
+                val word= jooq.txnWithDao(daoFactory::wordDao) {
+                    it.updateWord(id, wordVal)
                 }
 
-                call.respond(widget)
+                call.respond(word)
             }
 
-            get("/widgets/all") {
-                val widgets = jooq.txnWithDao(daoFactory::widgetDao) {
-                    it.getAllWidgets()
+            get("/w/all") {
+                val w= jooq.txnWithDao(daoFactory::wordDao) {
+                    it.getAllWords()
                 }
 
-                call.respond(widgets)
+                call.respond(w)
             }
 
-            post("/widgets") {
-                val req = call.receive<NewWidgetRequest>()
+            post("/words") {
+                val req = call.receive<NewWordRequest>()
 
-                val result = jooq.txnWithDao(daoFactory::widgetDao) {
-                    it.createWidget(req.name)
+                val result = jooq.txnWithDao(daoFactory::wordDao) {
+                    it.createWord(req.word)
                 }
 
                 call.respond(result)
@@ -84,4 +84,4 @@ class WidgetEndpoints @Inject constructor(app: Application, jooq: DSLContext, da
 /**
  * Deserialized from POSTed JSON.
  */
-private class NewWidgetRequest(@JsonProperty("name") val name: String)
+private class NewWordRequest(@JsonProperty("word") val word: String)

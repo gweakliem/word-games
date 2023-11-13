@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-abstract class WidgetDaoTestBase {
+abstract class WordDaoTestBase {
     abstract fun daoFactory(): DaoFactory
 
     abstract fun dslContext(): DSLContext
@@ -15,56 +15,56 @@ abstract class WidgetDaoTestBase {
     @Test
     internal fun getBadIdReturnsNull() {
         dslContext().transaction { t ->
-            assertNull(daoFactory().widgetDao(t.dsl()).getWidget(12345))
+            assertNull(daoFactory().wordDao(t.dsl()).getWord(12345))
         }
     }
 
     @Test
-    internal fun getGoodIdReturnsWidget() {
+    internal fun getGoodIdReturnsWord() {
         dslContext().transaction { t ->
-            val widgetDao = daoFactory().widgetDao(t.dsl())
+            val wordDao = daoFactory().wordDao(t.dsl())
 
-            val w = widgetDao.createWidget("foo")
+            val w = wordDao.createWord("foo")
 
-            assertEquals(w, widgetDao.getWidget(w.id))
+            assertEquals(w, wordDao.getWord(w.id))
         }
     }
 
     @Test
-    internal fun getAllIncludesAllCreatedWidgets() {
+    internal fun getAllIncludesAllCreatedWords() {
         dslContext().transaction { t ->
-            val widgetDao = daoFactory().widgetDao(t.dsl())
+            val wordDao = daoFactory().wordDao(t.dsl())
 
-            val w1 = widgetDao.createWidget("foo")
-            val w2 = widgetDao.createWidget("bar")
+            val w1 = wordDao.createWord("foo")
+            val w2 = wordDao.createWord("bar")
 
-            assertEquals(listOf(w1, w2), widgetDao.getAllWidgets())
+            assertEquals(listOf(w1, w2), wordDao.getAllWords())
         }
     }
 
     @Test
-    internal fun updateChangesName() {
+    internal fun updateChangesWord() {
         dslContext().transaction { t ->
-            val widgetDao = daoFactory().widgetDao(t.dsl())
+            val wordDao = daoFactory().wordDao(t.dsl())
 
-            val w = widgetDao.createWidget("foo")
+            val w = wordDao.createWord("foo")
             val newName = "bar"
-            widgetDao.updateWidgetName(w.id, newName)
+            wordDao.updateWord(w.id, newName)
 
-            assertEquals(w.copy(name = newName), widgetDao.getWidget(w.id))
+            assertEquals(w.copy(word = newName), wordDao.getWord(w.id))
         }
     }
 
     @Test
     internal fun firstLetterCounts() {
         dslContext().transaction { t ->
-            val widgetDao = daoFactory().widgetDao(t.dsl())
+            val wordDao = daoFactory().wordDao(t.dsl())
 
             listOf("kangaroo", "Kookaburra", "KOALA", "platypus", "echidna", "wombat", "wallaby").forEach {
-                widgetDao.createWidget(it)
+                wordDao.createWord(it)
             }
 
-            val actual = widgetDao.widgetNameFirstLetterCounts()
+            val actual = wordDao.wordPrefixCounts()
             assertEquals(
                 mapOf(
                     "E" to 1,
@@ -80,13 +80,13 @@ abstract class WidgetDaoTestBase {
     }
 }
 
-class MemoryWidgetDaoTest : WidgetDaoTestBase() {
+class MemoryWordDaoTest : WordDaoTestBase() {
     private val factory = MemoryDaoFactory()
     override fun daoFactory() = factory
     override fun dslContext(): DSLContext = fakeJooqDsl()
 }
 
-class SqlWidgetDaoTest : WidgetDaoTestBase() {
+class SqlWordDaoTest : WordDaoTestBase() {
 
     private lateinit var dbHelper: DbTestHelper
 

@@ -27,12 +27,12 @@ val deps by extra {
     )
 }
 
-val dbUser by extra { "ktor-demo-dev" }
-val dbPass by extra { "ktor-demo-dev" }
-val testDbUser by extra { "ktor-demo-test" }
-val testDbPass by extra { "ktor-demo-test" }
-val testDbName by extra { "ktor-demo-test" }
-val jdbcUrl by extra { "jdbc:postgresql://localhost:25432/ktor-demo-dev" }
+val dbUser by extra { "word-games-dev" }
+val dbPass by extra { "word-games-dev" }
+val testDbUser by extra { "word-games-test" }
+val testDbPass by extra { "word-games-test" }
+val testDbName by extra { "word-games-test" }
+val jdbcUrl by extra { "jdbc:postgresql://localhost:25432/word-games-dev" }
 val testJdbcUrl by extra { "jdbc:postgresql://localhost:25432/$testDbName" }
 
 jooq {

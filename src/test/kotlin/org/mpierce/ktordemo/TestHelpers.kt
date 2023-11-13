@@ -27,10 +27,10 @@ class DbTestHelper : Closeable {
         ConfigurationMap(
             "KTOR_DEMO_DB_HOST" to "127.0.0.1",
             "KTOR_DEMO_DB_PORT" to "25432",
-            "KTOR_DEMO_DB_DATABASE" to "ktor-demo-test",
+            "KTOR_DEMO_DB_DATABASE" to "word-gamess-test",
             "KTOR_DEMO_DB_DATA_SOURCE_CLASS" to "org.postgresql.ds.PGSimpleDataSource",
-            "KTOR_DEMO_DB_USER" to "ktor-demo-test",
-            "KTOR_DEMO_DB_PASSWORD" to "ktor-demo-test",
+            "KTOR_DEMO_DB_USER" to "word-games-test",
+            "KTOR_DEMO_DB_PASSWORD" to "word-games-test",
             "KTOR_DEMO_DB_MAX_POOL_SIZE" to "4",
             "KTOR_DEMO_DB_CONN_INIT_SQL" to "SET TIME ZONE 'UTC'",
             "KTOR_DEMO_DB_AUTO_COMMIT" to "false",
@@ -44,7 +44,7 @@ class DbTestHelper : Closeable {
         dslContext.transaction { c ->
             c.dsl().apply {
                 batch(
-                    deleteFrom(Tables.WIDGETS),
+                    deleteFrom(Tables.WORDS),
                     // other tables as needed
                 )
                     .execute()
@@ -59,9 +59,9 @@ class DbTestHelper : Closeable {
 
 class MemoryDaoFactory : DaoFactory {
     // need to re-use the same instance to avoid throwing away data
-    private val widgetDao = MemoryWidgetDao()
+    private val wordDao = MemoryWordDao()
 
-    override fun widgetDao(txnContext: DSLContext): WidgetDao = widgetDao
+    override fun wordDao(txnContext: DSLContext): WordDao = wordDao
 }
 
 /**

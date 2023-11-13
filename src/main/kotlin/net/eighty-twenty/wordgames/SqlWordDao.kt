@@ -3,41 +3,41 @@ package org.mpierce.ktordemo
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType
-import org.mpierce.ktordemo.jooq.Tables.WIDGETS
+import org.mpierce.ktordemo.jooq.Tables.WORDS
 
-class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
-    override fun getWidget(id: Int): Widget? {
-        val r = txnContext.selectFrom(WIDGETS)
-            .where(WIDGETS.ID.eq(id))
+class SqlWordDao(private val txnContext: DSLContext) : WordDao {
+    override fun getWord(id: Int): Word? {
+        val r = txnContext.selectFrom(WORDS)
+            .where(WORDS.ID.eq(id))
             .fetchOne()
 
-        return r?.let { Widget(it) }
+        return r?.let { Word(it) }
     }
 
-    override fun getAllWidgets(): List<Widget> {
-        // selecting from a table yields typed `WidgetsRecord` objects -- no raw ResultSet wrangling
-        return txnContext.selectFrom(WIDGETS)
-            .orderBy(WIDGETS.ID.asc())
+    override fun getAllWords(): List<Word> {
+        // selecting from a table yields typed `WordsRecord` objects -- no raw ResultSet wrangling
+        return txnContext.selectFrom(WORDS)
+            .orderBy(WORDS.ID.asc())
             .fetch()
-            .map { r -> Widget(r) }
+            .map { r -> Word(r) }
             .toList()
     }
 
-    override fun createWidget(name: String): Widget {
-        // This method returns a Widget, which includes a `createdAt` timestamp set by the database.
+    override fun createWord(word: String): Word {
+        // This method returns a Word, which includes a `createdAt` timestamp set by the database.
         // If we wanted to use plain SQL, we can do it with `insertInto()`.
         // In PostgreSQL, we can use the RETURNING clause to insert a new record and get back the db-generated
-        // primary key and timestamp as follows, which produces a fully populated WidgetsRecord:
+        // primary key and timestamp as follows, which produces a fully populated WordsRecord:
         /*
-            val result = txnContext.insertInto(WIDGETS, WIDGETS.NAME)
+            val result = txnContext.insertInto(WORDS, WORDS.NAME)
             .values(name)
             .returning()
             .fetchOne()
          */
         // See https://www.jooq.org/doc/3.11/manual/sql-building/sql-statements/insert-statement/insert-returning/.
-        // However, we can also do it using the generated UpdatableRecord implementation for the widgets table:
-        val record = txnContext.newRecord(WIDGETS).apply {
-            this.name = name
+        // However, we can also do it using the generated UpdatableRecord implementation for the words table:
+        val record = txnContext.newRecord(WORDS).apply {
+            this.word = word
             // this inserts the row, and since we're on Postgres, we also have jOOQ configured (see `buildJooqDsl()`)
             // to use INSERT ... RETURNING, which means that this will also populate the id and createdAt values, which
             // the db generates.
@@ -45,31 +45,31 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
             // If we weren't able to use INSERT ... RETURNING, we'd need to also do a refresh() here.
         }
 
-        return Widget(record)
+        return Word(record)
     }
 
-    override fun updateWidgetName(id: Int, name: String): Widget {
-        // Just as a demonstration, we'll use a different style from `createWidget()`.
-        // You can also use `WidgetsRecord` for this, though:
+    override fun updateWord(id: Int, word: String): Word {
+        // Just as a demonstration, we'll use a different style from `createWordt()`.
+        // You can also use `WordsRecord` for this, though:
         // https://www.jooq.org/doc/3.11/manual/sql-execution/crud-with-updatablerecords/simple-crud/
-        val result = txnContext.update(WIDGETS)
-            .set(WIDGETS.NAME, name)
-            .where(WIDGETS.ID.eq(id))
+        val result = txnContext.update(WORDS)
+            .set(WORDS.NAME, word)
+            .where(WORDS.ID.eq(id))
             .returning()
             .fetchSingle()
 
-        return Widget(result)
+        return Word(result)
     }
 
-    override fun widgetNameFirstLetterCounts(): Map<String, Int> {
+    override fun wordPrefixCounts(): Map<String, Int> {
         // This isn't the only way to do it in SQL, but this way demonstrates some of the flexibility of jOOQ:
         // we're creating a select expression to use as a table, and referencing a column from within that expression.
-        // This shows how to use both code gen'd tables and columns like WIDGET.NAME as well as dynamic things like
+        // This shows how to use both code gen'd tables and columns like WORD.NAME as well as dynamic things like
         // our "prefixes" table and "prefix" column.
 
         val prefixes = txnContext
-            .select(DSL.upper(DSL.left(WIDGETS.NAME, 1)).`as`("prefix"))
-            .from(WIDGETS)
+            .select(DSL.upper(DSL.left(WORDS.NAME, 1)).`as`("prefix"))
+            .from(WORDS)
             .asTable("prefixes")
 
         val field = prefixes.field("prefix")!!.coerce(SQLDataType.CLOB)
@@ -88,5 +88,5 @@ class SqlWidgetDao(private val txnContext: DSLContext) : WidgetDao {
 }
 
 class SqlDaoFactory : DaoFactory {
-    override fun widgetDao(txnContext: DSLContext): WidgetDao = SqlWidgetDao(txnContext)
+    override fun wordDao(txnContext: DSLContext): WordDao = SqlWordDao(txnContext)
 }

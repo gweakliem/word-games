@@ -1,8 +1,27 @@
 # What is this?
 
+Word Games is my project to implement some simple character and word based games online. 
+
+* Hangman
+* Wordle
+* Wordle Solver
+* Jumble / Jumble Solver
+* Cryptoquote
+  * Varying levels of difficulty
+  * Caesar cipher
+  * Substitution Cipher
+  * One Time Pad
+  * Enigma
+* General encipherment / decipherment (most interesting)
+
+Features
+* Login
+* Game Database
+* Saved Keys
+
 It's a small demo of using Ktor together with some other libraries to perform the sort of real world tasks common services perform: JSON serialization, working with a database, testing, etc. Feel free to use this project as a starting point; that's the idea! Nothing here is the "only way of doing things", so ditch anything that isn't a good fit for your project.
 
-Its contrived, simplistic workload is to let you create "widgets" and then list them or request individual widgets.
+Its contrived, simplistic workload is to let you create "words" and then list them or request individual widgets.
 
 I make no claim of using any particular feature in the most idiomatic way. If you have suggestions, file an issue or PR.
 

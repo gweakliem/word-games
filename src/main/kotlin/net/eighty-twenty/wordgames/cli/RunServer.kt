@@ -36,7 +36,7 @@ import org.mpierce.guice.warmup.GuiceWarmup
 import org.mpierce.ktordemo.DaoFactoryModule
 import org.mpierce.ktordemo.HttpServerConfig
 import org.mpierce.ktordemo.SqlDaoFactory
-import org.mpierce.ktordemo.WidgetEndpoints
+import org.mpierce.ktordemo.WordEndpoints
 import org.mpierce.ktordemo.buildHikariConfig
 import org.mpierce.ktordemo.fromDirectory
 import org.slf4j.Logger
@@ -159,7 +159,7 @@ fun setupGuice(app: Application, vararg modules: Module): Injector {
                 bind(Application::class.java).toInstance(app)
 
                 // endpoints get bound eagerly so routes are set up
-                listOf(WidgetEndpoints::class.java)
+                listOf(WordEndpoints::class.java)
                     .forEach { bind(it).asEagerSingleton() }
 
                 install(GuiceConfigModule())
