@@ -33,12 +33,7 @@ import org.jooq.SQLDialect
 import org.jooq.conf.Settings
 import org.jooq.impl.DSL
 import org.mpierce.guice.warmup.GuiceWarmup
-import org.mpierce.ktordemo.DaoFactoryModule
-import org.mpierce.ktordemo.HttpServerConfig
-import org.mpierce.ktordemo.SqlDaoFactory
-import org.mpierce.ktordemo.WidgetEndpoints
-import org.mpierce.ktordemo.buildHikariConfig
-import org.mpierce.ktordemo.fromDirectory
+import org.mpierce.ktordemo.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
@@ -160,6 +155,8 @@ fun setupGuice(app: Application, vararg modules: Module): Injector {
 
                 // endpoints get bound eagerly so routes are set up
                 listOf(WidgetEndpoints::class.java)
+                    .forEach { bind(it).asEagerSingleton() }
+                listOf(WordEndpoints::class.java)
                     .forEach { bind(it).asEagerSingleton() }
 
                 install(GuiceConfigModule())

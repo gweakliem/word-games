@@ -36,7 +36,7 @@ val jdbcUrl by extra { "jdbc:postgresql://localhost:25432/ktor-demo-dev" }
 val testJdbcUrl by extra { "jdbc:postgresql://localhost:25432/$testDbName" }
 
 jooq {
-    version.set("3.18.5")
+    version.set("3.18.7")
     edition.set(nu.studer.gradle.jooq.JooqEdition.OSS)
 
     configurations {

@@ -9,8 +9,11 @@ import org.jooq.DSLContext
  * This abstraction allows easily plugging in different implementations of persistence while also allowing clear
  * transaction boundaries.
  */
+
+// not sure I like DaoFactory, it feels wrong to bind multiple non-connected DAOs together
 interface DaoFactory {
     fun widgetDao(txnContext: DSLContext): WidgetDao
+    fun wordDao(txnContext: DSLContext): WordDao
 }
 
 class DaoFactoryModule(private val daoFactory: DaoFactory) : AbstractModule() {

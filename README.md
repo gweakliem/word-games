@@ -30,19 +30,20 @@ This project structure isn't about showing you how to write a web service in the
 Create a widget using [httpie](https://httpie.org/) or your HTTP client of choice:
 
 ```
-http POST 127.0.0.1:9080/widgets name=foo
+curl -i -XPOST -d '{"name":"justin"}' -H "Content-Type: application/json" http://localhost:9080/widgets
+curl -i -XPOST -d '{"word":"zymurgy"}' -H "Content-Type: application/json" http://localhost:9080/words
 ```
 
 List all the widgets widgets:
 
 ```
-http GET 127.0.0.1:9080/widgets/all
+curl http://localhost:9080/widgets/all
 ```
 
 Get a single widget:
 
 ```
-http GET 127.0.0.1:9080/widgets/id/1
+curl http://localhost:9080/widgets/id/1
 ```
 
 # Principles
@@ -78,7 +79,7 @@ Local dev setup steps:
 - Start a db container: `docker-compose up -d`
 - Do a build: `./gradlew build`
     - This does a DB migration, which you can do yourself too: `./gradlew flywayMigrate`
-    - It then generates jOOQ sources from that DB: `./gradlew generatePrimaryDbJooqSchemaSource`
+    - It then generates jOOQ sources from that DB: `./gradlew generateJooq`
 - Run `KtorDemo` via IntelliJ, or with `./gradlew run`.
     - It takes one command line arg (already set up for you if you use the `run` task), which should be the path to the `local-dev-config` directory: `--config=path/to/local-dev-config`
 - Note the `formatKotlin` task -- autoformat all code with `./gradlew formatKotlin`
